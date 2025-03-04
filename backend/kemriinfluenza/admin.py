@@ -1,6 +1,17 @@
 from django.contrib import admin
-from .models import Questionnaire, SocioEconomicDemographic, SourcesInformationSexualBehavior
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
+from .models import Respondent, EducatorName, Topic
 
-admin.site.register(Questionnaire)
-admin.site.register(SocioEconomicDemographic)
-admin.site.register(SourcesInformationSexualBehavior)
+# Unregister the default User model
+admin.site.unregister(User)
+
+# Register a custom version of User model (if needed)
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    pass  # Customize as needed
+
+# Register other models
+admin.site.register(Respondent)
+admin.site.register(EducatorName)
+admin.site.register(Topic)

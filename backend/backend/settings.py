@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,7 +32,9 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
+    'django_extensions',
     'kemriinfluenza', 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -88,17 +90,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'mssql',
-        #'ENGINE': 'django.db.backends.sql_server.pyodbc',
-        'NAME': 'kemri',  # Your SQL Server database name
-        'HOST': 'localhost',  # Change to your actual SQL Server name
-        'PORT': '1433',  # Default SQL Server port
-        'OPTIONS': {
-            'driver': 'ODBC Driver 17 for SQL Server',  # Ensure this driver is installed
-            'trusted_connection': 'yes',  # Enables Windows Authentication
-        },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, "sqliteDB", "kemri.db"),  # Updated path
     }
 }
+
 
 
 # Password validation

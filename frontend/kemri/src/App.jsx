@@ -6,7 +6,8 @@ import LoginPage from './frontend/auth/LoginPage';
 import { FormContext } from './store/form';
 import Signup from './frontend/auth/Signup';
 import Reset from './frontend/auth/ResetPass';
-//import CompanyDashboard from './frontend/questionnaire/company';
+import CompanyDashboard from './frontend/questionnaire/company';
+import AdminDashboard from './frontend/questionnaire/admin';
 
 
 // export const FormContext = createContext({data: {age: null, relationship: null}, setForm: (func) => {}})
@@ -50,6 +51,9 @@ const form = {
 
         <Route path="/signup" element={<FormContext.Provider value={form}><Signup /></FormContext.Provider>} />
         <Route path="/reset" element={<FormContext.Provider value={form}><Reset /></FormContext.Provider>} />
+
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/company" element={<CompanyDashboard />} />
         
 
       </Routes>

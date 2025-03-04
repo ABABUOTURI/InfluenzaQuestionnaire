@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, TextField, Button, Typography, Box, IconButton, InputAdornment, useMediaQuery } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
 
 // Importing images
 import Logo from '../../assets/k.png';
@@ -16,24 +17,46 @@ const LoginPage = () => {
     const isSmallScreen = useMediaQuery('(max-width: 768px)'); // Detects small screens
 
     const validateStaffNo = (staffNo) => {
-        const staffNoPattern = /^KM\d{1,3}$/;
+        const staffNoPattern = /^(KM|AD|CM)\d{1,3}$/; // KM, AD, or CM followed by 1 to 3 digits
         return staffNoPattern.test(staffNo);
     };
 
     const handleSubmit = async () => {
         setError('');
-
+    
         if (!validateStaffNo(staffNo)) {
-            setError('Staff number must be in the format KM followed by 1 to 3 digits (e.g., KM1, KM12, KM123).');
+            setError('Staff number must be in the format KM, AD, or CM followed by 1 to 3 digits (e.g., KM1, KM12, KM123).');
             return;
         }
-
-        if (password !== 'admin123') {
-            setError('Invalid password');
-            return;
+    
+        // Fetch user data from the database (simulate API request)
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/login/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ staffNo, password }),
+            });
+    
+            if (!response.ok) {
+                setError('Invalid staff number or password.');
+                return;
+            }
+    
+            const data = await response.json();
+    
+            // Determine navigation based on staff number prefix
+            if (staffNo.startsWith('KM')) {
+                navigate('/socio');
+            } else if (staffNo.startsWith('CM')) {
+                navigate('/company');
+            } else if (staffNo.startsWith('AD')) {
+                navigate('/admin');
+            } else {
+                setError('Invalid staff number format.');
+            }
+        } catch (error) {
+            setError('An error occurred. Please try again.');
         }
-
-        navigate('/socio');
     };
 
     return (

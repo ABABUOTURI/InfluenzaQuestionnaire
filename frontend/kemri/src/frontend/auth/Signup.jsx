@@ -3,6 +3,9 @@ import { Container, TextField, Button, Typography, Box, IconButton, InputAdornme
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../../assets/k.png';
+import { getUsers,registerUser } from '../../api/api1'; 
+//import { CheckCircle } from "lucide-react"; 
+import SuccessAlert from "../SuccessAlert";
 
 const Signup = () => {
     const [staffNo, setStaffNo] = useState('');
@@ -12,6 +15,7 @@ const Signup = () => {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
     const navigate = useNavigate();
 
     // Staff Number Validation
@@ -19,7 +23,6 @@ const Signup = () => {
         const staffNoPattern = /^(KM|AD|CM)\d{1,3}$/; // KM, AD, or CM followed by 1 to 3 digits
         return staffNoPattern.test(staffNo);
     };
-    
 
     // Email Validation
     const validateEmail = (email) => {
@@ -32,32 +35,44 @@ const Signup = () => {
         return password.length >= 6;
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         setError('');
-
+    
+        // Staff Number Validation
         if (!validateStaffNo(staffNo)) {
-            setError("Staff Number invalid.");
+            setError("Staff Number must start with KM, AD, or CM followed by digits.");
             return;
         }
-
+    
+        // Email Validation
         if (!validateEmail(email)) {
-            setError("Email must follow the format Axyz@kemri.go.ke");
+            setError("Invalid email format. Use example@kemri.go.ke.");
             return;
         }
-
+    
+        // Password Validation
         if (!validatePassword(password)) {
             setError("Password must be at least 6 characters long.");
             return;
         }
-
+    
+        // Confirm Password Validation
         if (password !== confirmPassword) {
             setError("Passwords do not match.");
             return;
         }
-
-        console.log("Signup successful!");
+    
+        try {
+            console.log("Sending data:", { staffNo, email, password }); // ✅ Debugging log
+            await registerUser(staffNo, email, password);
+            setShowAlert(true);
+            navigate("/"); // ✅ Redirect after successful registration
+        } catch (error) {
+            console.error("Registration Error:", error.response?.data || error.message); // ✅ Show exact error
+            setError(error.response?.data?.message || "Registration failed. Please try again.");
+        }
     };
-
+    
     return (
         <Box
             sx={{
@@ -226,6 +241,7 @@ const Signup = () => {
                 >
                     Signup
                 </Button>
+                {showAlert && <SuccessAlert message="Signup Successful!" onClose={() => navigate('/')} />}
 
                 {/* Back Arrow Button */}
              
