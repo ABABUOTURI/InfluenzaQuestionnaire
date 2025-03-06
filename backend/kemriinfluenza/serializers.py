@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model  # ✅ Use get_user_model() for flexibility
 from rest_framework import serializers
-from .models import Respondent, EducatorName, Topic
+from .models import Respondent, Educator, Topic
 
 User = get_user_model()  # ✅ Get the correct user model
 
@@ -21,29 +21,46 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-# Respondent Serializer
 class RespondentSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Respondent model.
-    """
     class Meta:
         model = Respondent
-        fields = '__all__'  # Include all fields in the model
+        fields = '__all__'
 
-# Educator Serializer
-class EducatorNameSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the EducatorName model.
-    """
-    class Meta:
-        model = EducatorName
-        fields = '__all__'  # Include all fields
 
-# Topic Serializer
 class TopicSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Topic model.
-    """
     class Meta:
         model = Topic
-        fields = '__all__'  # Include all fields
+        fields = ['topic_name', 'respondent']
+
+
+class EducatorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Educator
+        fields = ['educator_name', 'respondent']
+
+# # Respondent Serializer
+# class RespondentSerializer(serializers.ModelSerializer):
+#     """
+#     Serializer for the Respondent model.
+#     """
+#     class Meta:
+#         model = Respondent
+#         fields = '__all__'  # Include all fields in the model
+
+# # Educator Serializer
+# class EducatorNameSerializer(serializers.ModelSerializer):
+#     """
+#     Serializer for the EducatorName model.
+#     """
+#     class Meta:
+#         model = EducatorName
+#         fields = '__all__'  # Include all fields
+
+# # Topic Serializer
+# class TopicSerializer(serializers.ModelSerializer):
+#     """
+#     Serializer for the Topic model.
+#     """
+#     class Meta:
+#         model = Topic
+#         fields = '__all__'  # Include all fields

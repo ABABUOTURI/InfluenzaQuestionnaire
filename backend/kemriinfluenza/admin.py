@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
-from .models import Respondent, EducatorName, Topic
+from .models import Respondent, Educator, Topic
 
 # Unregister the default User model
 admin.site.unregister(User)
@@ -13,5 +13,5 @@ class CustomUserAdmin(UserAdmin):
 
 # Register other models
 admin.site.register(Respondent)
-admin.site.register(EducatorName)
+admin.site.register(Educator)
 admin.site.register(Topic)

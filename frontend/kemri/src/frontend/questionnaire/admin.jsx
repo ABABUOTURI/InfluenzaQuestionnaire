@@ -14,6 +14,7 @@ import {
     //Legend, 
     ResponsiveContainer,
 } from 'recharts';
+import { fetchStaffList } from "../../api/api2";
 
 
 const AdminDashboard = () => {
@@ -23,11 +24,12 @@ const AdminDashboard = () => {
   const [analyticsData, setAnalyticsData] = useState([]);
 
   useEffect(() => {
-    // Fetch data from API or backend
-    fetch("/api/visitor-logs").then(res => res.json()).then(data => setVisitorLogs(data));
-    fetch("/api/submitted-forms").then(res => res.json()).then(data => setSubmittedForms(data));
-    fetch("/api/staff-list").then(res => res.json()).then(data => setStaffList(data));
-    fetch("/api/analytics").then(res => res.json()).then(data => setAnalyticsData(data));
+    const getStaff = async () => {
+      const staffData = await fetchStaffList();
+      setStaffList(staffData);
+    };
+
+    getStaff();
   }, []);
 
   return (

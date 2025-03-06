@@ -15,59 +15,79 @@ import {
     // Typography,
    } from '@mui/material';
 import socioValidationSchema from '../validations/socioValidation';
-import { FormContext } from '../../store/form';
-
+import { useFormContext } from '../../store/form';
 
 const Socio = () => {
-const form = useContext(FormContext);
+  // Always call hooks at the top level
+  const context = useFormContext(); 
+  const navigate = useNavigate(); 
+  const [form] = useState({});
+  const { setForm } = useFormContext(); 
+  const [hasOlderSiblings, setHasOlderSiblings] = useState(false);
+  const [hasPocketMoney, setHasPocketMoney] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
 
-// Used to handle conditional questions
-const [hasOlderSiblings, setHasOlderSiblings] = useState(false);
-const [hasPocketMoney, setHasPocketMoney] = useState(false);
-const [tabValue, setTabValue] = useState(0);
-const navigate = useNavigate();
+  // Ensure `context` is available before extracting values
+  const { data } = context || { data: {}};
+  //const { form } = context || { form: {}, setForm: () => {} };
 
-// State to store form data
-const [formData, setFormData] = useState({
-  serial_number: "",
-  date_of_data_collection: "",
-  field1: "",
-  field2: "",
-  field3: "" // Add other required form fields
-});
+  const generateSerialNumber = () => `SN-${Date.now()}`;
 
-// Function to check if the form is valid
-const isFormValid = Object.values(formData).every((value) => value.trim() !== "");
+  // Function to get the current date & time in "YYYY-MM-DD HH:MM:SS" format
+  const getCurrentDateTime = () => new Date().toISOString().slice(0, 19).replace("T", " ");
 
-// Automatically generate serial number and date when the component mounts
-useEffect(() => {
-  const generateSerialNumber = () => `SN${Math.floor(100000 + Math.random() * 900000)}`;
+  const [formData, setFormData] = useState({
+    serial_number: generateSerialNumber(), // Auto-generate serial number
+    date_of_data_collection: getCurrentDateTime(), 
+    age: "",
+    relationship: "",
+    guardian_occupation: "",
+    guardian_education:"",
+    respondent_religion: "",
+    family_size: "",
+    has_siblings: "",
+    siblings_have_partners: "",
+    gets_pocket_money: "",
+    pocket_money_adequate: "",
+  });
 
-  const currentDate = new Date();
-  const formattedDate = currentDate.toISOString().slice(0, 19).replace("T", " ");
+  // Generate serial number and date only once when component mounts
+  useEffect(() => {
+    const generateSerialNumber = () => `SN${Math.floor(100000 + Math.random() * 900000)}`;
+    const currentDate = new Date().toISOString().slice(0, 19).replace("T", " ");
 
-  setFormData((prevData) => ({
-    ...prevData, // Preserve existing form data
-    serial_number: generateSerialNumber(),
-    date_of_data_collection: formattedDate
-  }));
-}, []);
+    setFormData((prevData) => ({
+      ...prevData,
+      serial_number: generateSerialNumber(),
+      date_of_data_collection: currentDate,
+    }));
+  }, []);
+
+  // Handle form input changes
+  const handle = (e) => {
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+ 
 
     return (
         <Formik
             initialValues={{
-              serial_number: '',
-              date_of_data_collection: '',
-              age: form.data.age,
-              relationship: form.data.relationship,
-              guardian_occupation: form.data.guardian_occupation,
-              guardian_education: form.data.guardian_education,
-              respondent_religion: form.data.respondent_religion,
-              family_size: form.data.family_size,
-              has_siblings: form.data.has_siblings,
-              siblings_have_partners: form.data.siblings_have_partners,
-              gets_pocket_money: form.data.gets_pocket_money,
-              pocket_money_adequate: form.data.pocket_money_adequate,
+              serial_number: data?.serial_number,
+              date_of_data_collection: data?.date_of_data_collection,
+              age: data?.age,
+              relationship: data?.relationship,
+              guardian_occupation: data?.guardian_occupation,
+              guardian_education: data?.guardian_education,
+              respondent_religion: data?.respondent_religion,
+              family_size: data?.family_size,
+              has_siblings: data?.has_siblings,
+              siblings_have_partners: data?.siblings_have_partners,
+              gets_pocket_money: data?.gets_pocket_money,
+              pocket_money_adequate: data?.pocket_money_adequate,
             }}
             validationSchema={socioValidationSchema} // Validation schema imported
             onSubmit={(values) => {
@@ -213,8 +233,8 @@ useEffect(() => {
         type="number"
         value={values.age}
         onChange={(e) => {
-            form.setForm((data) => ({ ...data, age: e.target.value }));
-            setFieldValue("age", e.target.value);
+          setFieldValue("age", e.target.value);
+          setFormData((prev) => ({ ...prev, age: e.target.value }));
         }}
         fullWidth
         sx={{
@@ -234,46 +254,54 @@ useEffect(() => {
     <FormControl fullWidth sx={{ marginBottom: 2, width: { xs: "100%", sm: "450px", md: "500px" }, boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.3)" }}>
         <InputLabel>Whom do you stay with?</InputLabel>
         <Select
-            name="relationship"
-            value={values.relationship}
-            onChange={(e) => {
-                form.setForm((data) => ({ ...data, relationship: e.target.value }));
-                setFieldValue("relationship", e.target.value);
-            }}
-            label="Whom do you stay with?"
-        >
-            <MenuItem value="Father and mother">Father and mother</MenuItem>
-            <MenuItem value="Mother only">Mother only</MenuItem>
-            <MenuItem value="Father only">Father only</MenuItem>
-            <MenuItem value="Relative">Relative</MenuItem>
-        </Select>
+      name="relationship"
+      value={values.relationship}
+      onChange={(e) => {
+        // setForm((prevData) => ({ ...prevData, relationship: e.target.value })); // ✅ Correct usage
+        // setFieldValue("relationship", e.target.value);
+
+        setFieldValue("relationship", e.target.value);
+        setFormData((prev) => ({ ...prev, relationship: e.target.value }));
+      }}
+      label="Whom do you stay with?"
+    >
+      <MenuItem value="Father and mother">Father and mother</MenuItem>
+      <MenuItem value="Mother only">Mother only</MenuItem>
+      <MenuItem value="Father only">Father only</MenuItem>
+      <MenuItem value="Relative">Relative</MenuItem>
+    </Select>
     </FormControl>
 
     {/* Guardian Occupation */}
     <FormControl fullWidth sx={{ marginBottom: 2, width: { xs: "100%", sm: "450px", md: "500px" }, boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.3)" }}>
         <InputLabel>Occupation of the Guardian</InputLabel>
         <Select
-            name="guardian_occupation"
-            value={values.guardian_occupation}
-            onChange={(event) => {
-                form.setForm((data) => ({ ...data, guardian_occupation: event.target.value }));
-                setFieldValue("guardian_occupation", event.target.value);
-            }}
-            label="Occupation of the Guardian"
-        >
-            <MenuItem value="Farm worker">Farm worker</MenuItem>
-            <MenuItem value="Self employed">Self employed</MenuItem>
-            <MenuItem value="Employed by someone">Employed by someone</MenuItem>
-            <MenuItem value="Professional">Professional</MenuItem>
-            <MenuItem value="Others">Others</MenuItem>
-        </Select>
+      name="guardian_occupation"
+      value={values.guardian_occupation}
+      onChange={(e) => {
+        setFieldValue("guardian_occupation", e.target.value);
+        setFormData(prev => ({ ...prev,  guardian_occupation: e.target.value }));
+        // setForm((prevData) => ({ ...prevData, guardian_occupation: event.target.value })); // ✅ Correct usage
+        // setFieldValue("guardian_occupation", event.target.value);
+      }}
+      label="Occupation of the Guardian"
+    >
+      <MenuItem value="Farm worker">Farm worker</MenuItem>
+      <MenuItem value="Self employed">Self employed</MenuItem>
+      <MenuItem value="Employed by someone">Employed by someone</MenuItem>
+      <MenuItem value="Professional">Professional</MenuItem>
+      <MenuItem value="Others">Others</MenuItem>
+    </Select>
     </FormControl>
 
     {values.guardian_occupation === "Others" && (
         <TextField
             label="Specify Occupation"
             name="otherGuardianOccupation"
-            onChange={handleChange}
+            onChange={(e) => {
+              setFieldValue("otherGuardianOccupation", e.target.value);
+              setFormData(prev => ({ ...prev,  otherGuardianOccupation: e.target.value }));
+            }}
             fullWidth
             sx={{
                 width: { xs: "100%", sm: "450px", md: "500px" }, // Responsive width
@@ -287,19 +315,21 @@ useEffect(() => {
     <FormControl fullWidth sx={{ marginBottom: 2, width: { xs: "100%", sm: "450px", md: "500px" }, boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.3)" }}>
         <InputLabel>Academic Level of Guardian</InputLabel>
         <Select
-            name="guardian_education"
-            value={values.guardian_education}
-            onChange={(e) => {
-                form.setForm((data) => ({ ...data, guardian_education: e.target.value }));
-                setFieldValue("guardian_education", e.target.value);
-            }}
-            label="Academic Level of Guardian"
-        >
-            <MenuItem value="None">None</MenuItem>
-            <MenuItem value="Primary">Primary</MenuItem>
-            <MenuItem value="Secondary">Secondary</MenuItem>
-            <MenuItem value="Tertiary Education">Tertiary Education</MenuItem>
-        </Select>
+      name="guardian_education"
+      value={values.guardian_education}
+      onChange={(e) => {
+        setFieldValue("guardian_education", e.target.value);
+        setFormData(prev => ({ ...prev, guardian_education: e.target.value }));
+        // setForm((prevData) => ({ ...prevData, guardian_education: e.target.value })); // ✅ Correct usage
+        // setFieldValue("guardian_education", e.target.value);
+      }}
+      label="Academic Level of Guardian"
+    >
+      <MenuItem value="None">None</MenuItem>
+      <MenuItem value="Primary">Primary</MenuItem>
+      <MenuItem value="Secondary">Secondary</MenuItem>
+      <MenuItem value="Tertiary Education">Tertiary Education</MenuItem>
+    </Select>
     </FormControl>
 </Grid>
 
@@ -314,52 +344,62 @@ useEffect(() => {
     <FormControl fullWidth sx={{ marginBottom: 2, width: { xs: '100%', sm: '450px', md: '500px' }, boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.3)' }}>
         <InputLabel>What is your religion?</InputLabel>
         <Select
-            name="respondent_religion"
-            value={values.respondent_religion}
-            onChange={(e) => {
-                form.setForm(data => ({ ...data, respondent_religion: e.target.value }));
-                setFieldValue("respondent_religion", e.target.value);
-            }}
-            label="What is your religion?"
-        >
-            <MenuItem value="Catholic">Catholic</MenuItem>
-            <MenuItem value="Protestant">Protestant</MenuItem>
-            <MenuItem value="Muslim">Muslim</MenuItem>
-            <MenuItem value="SDA">SDA</MenuItem>
-            <MenuItem value="None">None</MenuItem>
-        </Select>
+      name="respondent_religion"
+      value={values.respondent_religion}
+      onChange={(e) => {
+        setFieldValue("respondent_religion", e.target.value);
+        setFormData(prev => ({ ...prev, respondent_religion: e.target.value }));
+        // setForm((prevData) => ({ ...prevData, respondent_religion: e.target.value })); // ✅ Correct usage
+        // setFieldValue("respondent_religion", e.target.value);
+      }}
+      label="What is your religion?"
+    >
+      <MenuItem value="Catholic">Catholic</MenuItem>
+      <MenuItem value="Protestant">Protestant</MenuItem>
+      <MenuItem value="Muslim">Muslim</MenuItem>
+      <MenuItem value="SDA">SDA</MenuItem>
+      <MenuItem value="None">None</MenuItem>
+    </Select>
     </FormControl>
 
     {/* Family Size Input */}
     <TextField
-        label="How many are you in the family?"
-        name="family_size"
-        type="number"
-        value={values.family_size}
-        onChange={(e) => {
-            form.setForm(data => ({ ...data, family_size: e.target.value }));
-            setFieldValue("family_size", e.target.value);
-        }}
-        fullWidth
-        sx={{ width: { xs: '100%', sm: '450px', md: '500px' }, marginTop: 3, boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.3)' }}
-        inputProps={{ min: 1, max: 50 }}
+      label="How many are you in the family?"
+      name="family_size"
+      type="number"
+      value={values.family_size}
+      onChange={(e) => {
+        setFieldValue("family_size", e.target.value);
+        setFormData(prev => ({ ...prev, family_size: e.target.value }));
+        // setForm((prevData) => ({ ...prevData, family_size: e.target.value })); // ✅ Use setForm directly
+        // setFieldValue("family_size", e.target.value);
+      }}
+      fullWidth
+      sx={{
+        width: { xs: "100%", sm: "450px", md: "500px" },
+        marginTop: 3,
+        boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.3)",
+      }}
+      inputProps={{ min: 1, max: 50 }}
     />
 
     {/* Siblings Question */}
     <FormControl fullWidth sx={{ marginTop: 2, marginBottom: 2, width: { xs: '100%', sm: '450px', md: '500px' }, boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.3)' }}>
         <InputLabel>Do you have older siblings?</InputLabel>
         <Select
-            name="has_siblings"
-            value={values.has_siblings}
-            onChange={(e) => {
-                form.setForm(data => ({ ...data, has_siblings: e.target.value }));
-                setFieldValue('has_siblings', e.target.value);
-            }}
-            label="Do you have older siblings?"
-        >
-            <MenuItem value="YES">Yes</MenuItem>
-            <MenuItem value="NO">No</MenuItem>
-        </Select>
+      name="has_siblings"
+      value={values.has_siblings}
+      onChange={(e) => {
+        setFieldValue("has_siblings", e.target.value);
+        setFormData(prev => ({...prev, has_siblings: e.target.value }));
+        // setForm((prevData) => ({ ...prevData, has_siblings: e.target.value })); // ✅ Correct function call
+        // setFieldValue("has_siblings", e.target.value);
+      }}
+      label="Do you have older siblings?"
+    >
+      <MenuItem value="YES">Yes</MenuItem>
+      <MenuItem value="NO">No</MenuItem>
+    </Select>
     </FormControl>
 
     {/* If siblings exist, ask about their relationships */}
@@ -367,17 +407,19 @@ useEffect(() => {
         <FormControl fullWidth sx={{ marginBottom: 2, width: { xs: '100%', sm: '450px', md: '500px' }, boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.3)' }}>
             <InputLabel>If Yes, do they have girlfriends/boyfriends?</InputLabel>
             <Select
-                name="siblings_have_partners"
-                value={values.siblings_have_partners}
-                onChange={(e) => {
-                    form.setForm(data => ({ ...data, siblings_have_partners: e.target.value }));
-                    setFieldValue('siblings_have_partners', e.target.value);
-                }}
-                label="If Yes, do they have girlfriends/boyfriends?"
-            >
-                <MenuItem value="YES">Yes</MenuItem>
-                <MenuItem value="NO">No</MenuItem>
-            </Select>
+      name="siblings_have_partners"
+      value={values.siblings_have_partners}
+      onChange={(e) => {
+        setFieldValue("siblings_have_partners", e.target.value);
+        setFormData(prev => ({...prev, siblings_have_partners: e.target.value }));
+        // setForm((prevData) => ({ ...prevData, siblings_have_partners: e.target.value })); // ✅ Correct function call
+        // setFieldValue("siblings_have_partners", e.target.value);
+      }}
+      label="If Yes, do they have girlfriends/boyfriends?"
+    >
+      <MenuItem value="YES">Yes</MenuItem>
+      <MenuItem value="NO">No</MenuItem>
+    </Select>
         </FormControl>
     )}
 
@@ -388,8 +430,13 @@ useEffect(() => {
             name="gets_pocket_money"
             value={values.gets_pocket_money}
             onChange={(e) => {
-                form.setForm(data => ({ ...data, gets_pocket_money: e.target.value }));
-                setFieldValue('gets_pocket_money', e.target.value);
+              setFieldValue("gets_pocket_money", e.target.value);
+              setFormData(prev => ({...prev, gets_pocket_money: e.target.value }));
+                // setForm(data => ({ ...data, gets_pocket_money: e.target.value }));
+                // setFieldValue('gets_pocket_money', e.target.value);
+
+        //         setForm((prevData) => ({ ...prevData, siblings_have_partners: e.target.value })); // ✅ Correct function call
+        // setFieldValue("siblings_have_partners", e.target.value);
             }}
             label="Do you receive pocket money?"
         >
@@ -403,17 +450,19 @@ useEffect(() => {
         <FormControl fullWidth sx={{ marginBottom: 2, width: { xs: '100%', sm: '450px', md: '500px' }, boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.3)' }}>
             <InputLabel>If Yes, is it adequate?</InputLabel>
             <Select
-                name="pocket_money_adequate"
-                value={values.pocket_money_adequate}
-                onChange={(e) => {
-                    form.setForm(data => ({ ...data, pocket_money_adequate: e.target.value }));
-                    setFieldValue('pocket_money_adequate', e.target.value);
-                }}
-                label="If Yes, is it adequate?"
-            >
-                <MenuItem value="YES">Yes</MenuItem>
-                <MenuItem value="NO">No</MenuItem>
-            </Select>
+      name="pocket_money_adequate"
+      value={values.pocket_money_adequate}
+      onChange={(e) => {
+        setFieldValue("pocket_money_adequate", e.target.value);
+              setFormData(prev => ({...prev, pocket_money_adequate: e.target.value }));
+        // setForm((prevData) => ({ ...prevData, pocket_money_adequate: e.target.value })); // ✅ Correct function call
+        // setFieldValue("pocket_money_adequate", e.target.value);
+      }}
+      label="If Yes, is it adequate?"
+    >
+      <MenuItem value="YES">Yes</MenuItem>
+      <MenuItem value="NO">No</MenuItem>
+    </Select>
         </FormControl>
     )}
 </Grid>
@@ -433,10 +482,10 @@ useEffect(() => {
   }}
   // Disables button if form is not valid
   onClick={() => {
-    if (isFormValid) {
+      localStorage.setItem("formdata", JSON.stringify(formData))
       navigate("/index");
     }
-  }}
+  }
 >
   NEXT
 </Button>

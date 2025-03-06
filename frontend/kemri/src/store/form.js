@@ -1,7 +1,9 @@
-import  {createContext} from "react";
+import { createContext, useState, useContext } from "react";
 
-export const FormContext = createContext({
-    data: {
+const FormContext = createContext(null);
+
+export function FormContextProvider({ children }) {
+    const [data, setData] = useState({
         age: null, 
         relationship: null,
         guardian_occupation: null,
@@ -19,31 +21,25 @@ export const FormContext = createContext({
         information_adequate: null,
         educator_name: null,
         topic_name: null
-    },
-    setForm: (func) => {}})
+    });
 
-// export function FormContextProvider({children}) {
-//     const [data, setData] = useState({
-//         age: null,
-//         relationship: null
-//     });
+    // ✅ Correct function for updating form data
+    const setForm = (newData) => {
+        setData((prevData) => ({ ...prevData, ...newData }));
+    };
 
-//     const setForm = (func) => {
-//         setData(func)
-//     }
-//     const form = {
-//         data: data,
-//         setForm: setForm
-//     }
-//     // ...
-//     return (
-//       <FormContext.Provider value={form}>
-//         {children}
-//       </FormContext.Provider>
-//     );
-//   }
+    return (
+      <FormContext.Provider value={{ data, setForm }}> 
+        {children}
+      </FormContext.Provider>
+    );
+}
 
-
-//   <formContext>
-//     <Socio/>
-//     </formContext>
+// ✅ Custom hook to access context
+export const useFormContext = () => {
+    const context = useContext(FormContext);
+    if (!context) {
+        throw new Error("useFormContext must be used inside a FormContextProvider.");
+    }
+    return context;
+};
