@@ -4,8 +4,9 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../../assets/k.png';
 import { getUsers,registerUser } from '../../api/api1'; 
+import { Snackbar, Alert } from "@mui/material";
 //import { CheckCircle } from "lucide-react"; 
-import SuccessAlert from "../SuccessAlert";
+// import SuccessAlert from "../SuccessAlert";
 
 const Signup = () => {
     const [staffNo, setStaffNo] = useState('');
@@ -16,6 +17,8 @@ const Signup = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
+    const [alertType, setAlertType] = useState(""); // "success" or "error"
+    const [alertMessage, setAlertMessage] = useState("");
     const navigate = useNavigate();
 
     // Staff Number Validation
@@ -40,39 +43,45 @@ const Signup = () => {
     
         // Staff Number Validation
         if (!validateStaffNo(staffNo)) {
-            setError("Staff Number must start with KM, AD, or CM followed by digits.");
+            showPopup("Staff Number must start with KM, AD, or CM followed by digits.", "error");
             return;
         }
     
         // Email Validation
         if (!validateEmail(email)) {
-            setError("Invalid email format. Use example@kemri.go.ke.");
+            showPopup("Invalid email format. Use example@kemri.go.ke.", "error");
             return;
         }
     
         // Password Validation
         if (!validatePassword(password)) {
-            setError("Password must be at least 6 characters long.");
+            showPopup("Password must be at least 6 characters long.", "error");
             return;
         }
     
         // Confirm Password Validation
         if (password !== confirmPassword) {
-            setError("Passwords do not match.");
+            showPopup("Passwords do not match.", "error");
             return;
         }
     
         try {
             console.log("Sending data:", { staffNo, email, password }); // ✅ Debugging log
             await registerUser(staffNo, email, password);
-            setShowAlert(true);
-            navigate("/"); // ✅ Redirect after successful registration
+            showPopup("Registration successful!", "success");
+            setTimeout(() => navigate("/"), 3000); // ✅ Redirect after 3 sec
         } catch (error) {
             console.error("Registration Error:", error.response?.data || error.message); // ✅ Show exact error
-            setError(error.response?.data?.message || "Registration failed. Please try again.");
+            showPopup(error.response?.data?.message || "Registration failed. Please try again.", "error");
         }
     };
-    
+
+    // Function to show popup alert
+    const showPopup = (message, type) => {
+        setAlertMessage(message);
+        setAlertType(type);
+        setShowAlert(true);
+    };
     return (
         <Box
             sx={{
@@ -225,7 +234,24 @@ const Signup = () => {
                 />
 
                 {/* Signup Button */}
-                <Button
+                {/* <Button
+                    variant="contained"
+                    sx={{
+                        mt: 2,
+                        borderRadius: '25px',
+                        backgroundColor: '#57707A',
+                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.8)',
+                        '&:hover': { backgroundColor: '#C5BAC4' },
+                        width: { xs: '100%', sm: '80%', md: '50%' },
+                        alignSelf: 'center',
+                        textTransform: 'none',
+                    }}
+                    onClick={handleSubmit}
+                >
+                    Signup
+                </Button> */}
+                 <div>
+                 <Button
                     variant="contained"
                     sx={{
                         mt: 2,
@@ -241,22 +267,51 @@ const Signup = () => {
                 >
                     Signup
                 </Button>
-                {showAlert && <SuccessAlert message="Signup Successful!" onClose={() => navigate('/')} />}
+
+            {/* Success & Error Snackbar Alerts */}
+            <Snackbar
+                open={showAlert}
+                autoHideDuration={3000}
+                onClose={() => setShowAlert(false)}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            >
+                <Alert
+                    onClose={() => setShowAlert(false)}
+                    severity={alertType === "success" ? "success" : "error"}
+                    sx={{
+                        width: "100%",
+                        color: "#fff",
+                        backgroundColor: alertType === "success" ? "#2e7d32" : "#d32f2f",
+                        display: "flex",
+                        alignItems: "center",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                    }}
+                    icon={alertType === "success" ? "✅" : "❌"}
+                >
+                    {alertMessage}
+                </Alert>
+            </Snackbar>
+        </div>
+                {/* {showAlert && <SuccessAlert message="Signup Successful!" onClose={() => navigate('/')} />} */}
 
                 {/* Back Arrow Button */}
              
                     
-                    <Typography
-                        sx={{
-                            fontSize: '1rem',
-                            ml: 0.5,
-                            cursor: 'pointer',
-                            '&:hover': { color: 'blue' },
-                        }}
-                        onClick={() => navigate('/')}
-                    >
-                        Already have an account? Login
-                    </Typography>
+                    <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+    <Typography
+        sx={{
+            fontSize: "1rem",
+            ml: 0.5,
+            cursor: "pointer",
+            "&:hover": { color: "blue" },
+        }}
+        onClick={() => navigate("/")}
+    >
+        Already have an account? Login
+    </Typography>
+</Box>
+
                
             </Container>
         </Box>

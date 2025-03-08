@@ -3,6 +3,9 @@ import { Container, TextField, Button, Typography, Box, IconButton, InputAdornme
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import { Alert, Snackbar } from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorIcon from "@mui/icons-material/Error";
 
 // Importing images
 import Logo from '../../assets/k.png';
@@ -13,49 +16,63 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertType, setAlertType] = useState(""); // "success" or "error"
+    const [alertMessage, setAlertMessage] = useState("");
+
     const navigate = useNavigate();
     const isSmallScreen = useMediaQuery('(max-width: 768px)'); // Detects small screens
 
     const validateStaffNo = (staffNo) => {
-        const staffNoPattern = /^(KM|AD|CM)\d{1,3}$/; // KM, AD, or CM followed by 1 to 3 digits
+        const staffNoPattern = /^(KM|AD|CM)\d{1,4}$/; // KM, AD, or CM followed by 1 to 3 digits
         return staffNoPattern.test(staffNo);
     };
 
     const handleSubmit = async () => {
-        setError('');
-    
+        setShowAlert(false);
+
         if (!validateStaffNo(staffNo)) {
-            setError('Staff number must be in the format KM, AD, or CM followed by 1 to 3 digits (e.g., KM1, KM12, KM123).');
+            setAlertType("error");
+            setAlertMessage("Staff number must be in the format KM, AD, or CM followed by 1 to 3 digits (e.g., KM1, KM12, KM123).");
+            setShowAlert(true);
             return;
         }
-    
-        // Fetch user data from the database (simulate API request)
+
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/login/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const response = await fetch("http://127.0.0.1:8000/api/login/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ staffNo, password }),
             });
-    
+
             if (!response.ok) {
-                setError('Invalid staff number or password.');
+                setAlertType("error");
+                setAlertMessage("Invalid staff number or password.");
+                setShowAlert(true);
                 return;
             }
-    
-            const data = await response.json();
-    
-            // Determine navigation based on staff number prefix
-            if (staffNo.startsWith('KM')) {
-                navigate('/socio');
-            } else if (staffNo.startsWith('CM')) {
-                navigate('/company');
-            } else if (staffNo.startsWith('AD')) {
-                navigate('/admin');
-            } else {
-                setError('Invalid staff number format.');
-            }
+
+            setAlertType("success");
+            setAlertMessage("Login Successful!");
+            setShowAlert(true);
+
+            setTimeout(() => {
+                if (staffNo.startsWith("KM")) {
+                    navigate("/socio");
+                } else if (staffNo.startsWith("CM")) {
+                    navigate("/company");
+                } else if (staffNo.startsWith("AD")) {
+                    navigate("/admin");
+                } else {
+                    setAlertType("error");
+                    setAlertMessage("Invalid staff number format.");
+                    setShowAlert(true);
+                }
+            }, 3000);
         } catch (error) {
-            setError('An error occurred. Please try again.');
+            setAlertType("error");
+            setAlertMessage("An error occurred. Please try again.");
+            setShowAlert(true);
         }
     };
 
@@ -189,23 +206,48 @@ const LoginPage = () => {
                         ),
                     }}
                 />
+                {/* <> */}
                 <Button
-                    variant="contained"
+                variant="contained"
+                sx={{
+                    mt: 2,
+                    borderRadius: '25px',
+                    backgroundColor: '#57707A',
+                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.8)',
+                    '&:hover': { backgroundColor: '#C5BAC4' },
+                    width: { xs: '100%', sm: '80%', md: '50%' },
+                    alignSelf: 'center',
+                    textTransform: 'none',
+                }}
+                onClick={handleSubmit}
+            >
+                Login
+            </Button>
+
+            {/* ✅ Success & Error Snackbar Alerts */}
+            <Snackbar
+                open={showAlert}
+                autoHideDuration={3000}
+                onClose={() => setShowAlert(false)}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            >
+                <Alert
+                    onClose={() => setShowAlert(false)}
+                    severity={alertType}
                     sx={{
-                        mt: 2,
-                        borderRadius: '25px',
-                        backgroundColor: '#57707A',
-                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.8)',
-                        '&:hover': { backgroundColor: '#C5BAC4' },
-                        width: { xs: '90%', sm: '50%' }, // Full width on small screens
-                        alignSelf: 'center',
-                        fontSize: isSmallScreen ? '14px' : '16px', // Adjust button text size
+                        width: "100%",
+                        color: "#fff",
+                        backgroundColor: alertType === "success" ? "#2e7d32" : "#d32f2f",
+                        display: "flex",
+                        alignItems: "center",
+                        fontSize: "16px",
+                        fontWeight: "bold",
                     }}
-                    onClick={handleSubmit}
+                    icon={alertType === "success" ? "✅" : "❌"}
                 >
-                    Login
-                </Button>
-                {/* Back Arrow Button */}
+                    {alertMessage}
+                </Alert>
+            </Snackbar>
                               
                                     <Typography
                                         sx={{
