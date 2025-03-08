@@ -1,7 +1,14 @@
 
-import React, { useContext, useState, useEffect } from 'react';
+import React, { 
+  // useContext, 
+  useState, 
+  // useEffect 
+} from 'react';
 import { Formik, Form } from 'formik';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { 
+  useNavigate, 
+  // useLocation 
+} from 'react-router-dom';
 import { FormGroup, FormControlLabel, Checkbox } from '@mui/material';
 import {
  Tabs,
@@ -19,16 +26,18 @@ import {
 } from '@mui/material';
 import indexValidationSchema from '../validations/indexValidation';
 import { useFormContext } from "../../store/form";
-import { submitForm } from '../../api//api3';
+// import { submitForm } from '../../api//api3';
 
 
 
 const Index = () => {
-  const location = useLocation();
+  // const location = useLocation();
+  // const [showSuccess, setShowSuccess] = useState(false);
+  const [popup, setPopup] = useState({ show: false, message: "", type: "" });
   const navigate = useNavigate();
   const context = useFormContext();
   const [tabValue] = useState(0);
-  const { setForm } = useFormContext();
+  // const { setForm } = useFormContext();
   const { data } = context || { data: {} };
 
   // Retrieve passed data from Socio.jsx
@@ -37,7 +46,7 @@ const Index = () => {
   console.log(receivedFormData)
 
   // Function to generate a unique serial number
-  const generateSerialNumber = () => `SN-${Date.now()}`;
+  // const generateSerialNumber = () => `SN-${Date.now()}`;
 
   // Function to get the current date & time in "YYYY-MM-DD HH:MM:SS" format
   const getCurrentDateTime = () => new Date().toUTCString()
@@ -79,32 +88,35 @@ const Index = () => {
   };
 
   // Validate required fields
-  const validateForm = () => {
-    const requiredFields = [
-      "serial_number",
-      "date_of_data_collection",
-      "age",
-      "relationship",
-      "guardian_occupation",
-      "guardian_education",
-      "respondent_religion",
-      "family_size",
-    ];
+  // const validateForm = () => {
+  //   const requiredFields = [
+  //     "serial_number",
+  //     "date_of_data_collection",
+  //     "age",
+  //     "relationship",
+  //     "guardian_occupation",
+  //     "guardian_education",
+  //     "respondent_religion",
+  //     "family_size",
+  //   ];
 
-    for (let field of requiredFields) {
-      if (!formData[field]) {
-        alert(`Error: ${field} is required`);
-        return false;
-      }
-    }
-    return true;
-  };
+  //   for (let field of requiredFields) {
+  //     if (!formData[field]) {
+  //       alert(`Error: ${field} is required`);
+  //       return false;
+  //     }
+  //   }
+  //   return true;
+  // };
 
   // Submit form data to API
   const handleSubmit = async () => {
-    // if (!validateForm()) return; // Stop submission if validation fails
+    if (!formData || Object.values(formData).some((value) => value === "" || value === null)) {
+      showPopup("Please fill in all required fields.", "error");
+      return;
+    }
 
-    // console.log("Submitting:", JSON.stringify(formData, null, 2));
+    console.log("Submitting:", JSON.stringify(formData, null, 2));
 
     try {
       const response = await fetch("http://localhost:8000/api/submit/", {
@@ -117,15 +129,30 @@ const Index = () => {
       console.log("Response from server:", responseData);
 
       if (response.ok) {
-        alert("Form submitted successfully!");
+        showPopup("Form submitted successfully!", "success");
+
+        // Hide success message after 3 seconds and navigate to /socio
+        setTimeout(() => {
+          navigate("/socio");
+        }, 5000);
       } else {
-        alert(`Submission failed: ${JSON.stringify(responseData)}`);
+        showPopup(`Submission failed: ${JSON.stringify(responseData)}`, "error");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("An error occurred. Please try again.");
+      showPopup("An error occurred. Please try again.", "error");
     }
   };
+
+  const showPopup = (message, type) => {
+    setPopup({ show: true, message, type });
+
+    // Hide popup after 3 seconds
+    setTimeout(() => {
+      setPopup({ show: false, message: "", type: "" });
+    }, 5000);
+  };
+  
   
 
     return (
@@ -532,6 +559,42 @@ const Index = () => {
         BACK
       </Button>
 
+      {/* <Button
+        type="button"
+        variant="contained"
+        sx={{
+          minWidth: 100,
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.8)",
+          backgroundColor: "#57707A",
+        }}
+        onClick={handleSubmit} 
+      >
+        SUBMIT
+      </Button> */}
+      <div>
+      {popup.show && (
+        <div style={{
+          position: "fixed",
+          top: "20px",
+          right: "20px",
+          backgroundColor: popup.type === "success" ? "#f7c948" : "#ff4d4d", // Gold/yellow for success, Red for error
+          color: "white",
+          padding: "15px",
+          borderRadius: "8px",
+          display: "flex",
+          alignItems: "center",
+          boxShadow: "0px 4px 6px rgba(0,0,0,0.1)"
+        }}>
+          <span style={{
+            fontSize: "18px",
+            marginRight: "10px",
+            fontWeight: "bold"
+          }}>
+            {popup.type === "success" ? "✔" : "✖"}
+          </span>
+          <span>{popup.message}</span>
+        </div>
+      )}
       <Button
         type="button"
         variant="contained"
@@ -543,7 +606,8 @@ const Index = () => {
         onClick={handleSubmit} 
       >
         SUBMIT
-      </Button>
+      </Button> 
+    </div>
     </Box>
 
             </Form>

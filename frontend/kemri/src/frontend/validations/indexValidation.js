@@ -11,29 +11,36 @@ const indexValidationSchema = Yup.object({
       : schema.notRequired()
   ),
 
-  access_to_reproductive_health_info: Yup.string().required('Please indicate access to reproductive health info'),
+  // access_to_reproductive_health_info: Yup.string().required('Please indicate access to reproductive health info'),
 
-  information_adequate: Yup.string().when('access_to_reproductive_health_info', (access, schema) => 
-    access === 'NO'
-      ? schema.nullable().notRequired() // Disabled when "NO"
-      : schema.required('Please indicate if the information is adequate')
-  ),
+  access_to_reproductive_health_info: Yup.string()
+  .required('Please indicate access to reproductive health info'),
 
-  educator_name: Yup.array()
-    .of(Yup.string())
-    .when('access_to_reproductive_health_info', (access, schema) => 
-      access === 'YES'
-        ? schema.min(1, 'You must select at least one educator if you have access to information')
-        : schema.notRequired()
-    ),
+information_adequate: Yup.string().when('access_to_reproductive_health_info', {
+  is: 'NO',
+  then: (schema) => schema.nullable().notRequired(), // Disabled when "NO"
+  otherwise: (schema) => schema.required('Please indicate if the information is adequate'),
+}),
 
-  topic_name: Yup.array()
-    .of(Yup.string())
-    .when('educator_name', (educators, schema) => 
-      Array.isArray(educators) && educators.length > 0
-        ? schema.min(1, 'You must select at least one topic if you have selected educators')
-        : schema.notRequired()
-    ),
+educator_name: Yup.array()
+  .of(Yup.string())
+  .when('access_to_reproductive_health_info', {
+    is: 'NO',
+    then: (schema) => schema.notRequired().nullable(), // Disabled when "NO"
+    otherwise: (schema) => schema.min(1, 'You must select at least one educator if you have access to information'),
+  }),
+
+topic_name: Yup.array()
+  .of(Yup.string())
+  .when(['access_to_reproductive_health_info', 'educator_name'], ([access, educators], schema) => {
+    if (access === 'NO') {
+      return schema.notRequired().nullable(); // Disabled when "NO"
+    }
+    if (Array.isArray(educators) && educators.length > 0) {
+      return schema.min(1, 'You must select at least one topic if you have selected educators');
+    }
+    return schema.notRequired();
+  }),
 });
 
 export default indexValidationSchema;

@@ -11,12 +11,22 @@ const CompanyDashboard = () => {
   useEffect(() => {
     // Fetch reports and staff data (Replace with actual API calls)
     setReports([
-      { id: 1, staffNo: "S001", name: "John Doe", time: "10:00 AM", status: "Submitted" },
-      { id: 2, staffNo: "S002", name: "Jane Smith", time: "11:30 AM", status: "Pending" },
+      { id: 1, staffNo: "KM001", name: "John Kamau", time: "10:00 AM", status: "Submitted" },
+      { id: 2, staffNo: "KM002", name: "Bil Smith", time: "11:30 AM", status: "Pending" },
+      { id: 3, staffNo: "KM004", name: "Oroo Davis", time: "11:30 AM", status: "Submitted" },
+      { id: 4, staffNo: "KM007", name: "Rigathi Gachagua", time: "15:30 PM", status: "Pending" },
+      { id: 5, staffNo: "KM012", name: "Otieno Smith", time: "08:30 AM", status: "Pending" },
+      { id: 5, staffNo: "KM014", name: "Korir Samuel", time: "06:30 AM", status: "Pending" },
+      { id: 5, staffNo: "KM005", name: "Wendy Simiyu", time: "18:30 AM", status: "Pending" },
     ]);
     setStaffList([
-      { staffNo: "S001", name: "John Doe", email: "john@example.com" },
-      { staffNo: "S002", name: "Jane Smith", email: "jane@example.com" },
+      { staffNo: "KM001", name: "John Kamau", email: "john@kemri.go.ke" },
+      { staffNo: "KM002", name: "Bil Smith", email: "bill@kemri.go.ke" },
+      { staffNo: "KM004", name: "Oroo Davis", email: "oroo@kemri.go.ke" },
+      { staffNo: "KM007", name: "Rigathi Gachagua", email: "rigathi@kemri.go.ke" },
+      { staffNo: "KM012", name: "Otieno Smith", email: "otieno@kemri.go.ke" },
+      { staffNo: "KM014", name: "Korir Samuel", email: "korir@kemri.go.ke" },
+    { staffNo: "KM005", name: "Wendy Simiyu", email: "simiyu@kemri.go.ke" },
     ]);
   }, []);
 

@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from "react";
 import "../styles/AdminDashboard.css";
-//import { Table, Button } from "@/components/ui/table";
 import { Table, Button } from "@mui/material";
-import { Card, CardContent} from "@mui/material";
-//import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@mui/material";
 import { 
     BarChart, 
     Bar, 
     XAxis, 
     YAxis, 
-    //CartesianGrid, 
     Tooltip, 
-    //Legend, 
     ResponsiveContainer,
 } from 'recharts';
-import { fetchStaffList } from "../../api/api2";
-
 
 const AdminDashboard = () => {
   const [visitorLogs, setVisitorLogs] = useState([]);
@@ -24,12 +18,41 @@ const AdminDashboard = () => {
   const [analyticsData, setAnalyticsData] = useState([]);
 
   useEffect(() => {
-    const getStaff = async () => {
-      const staffData = await fetchStaffList();
-      setStaffList(staffData);
-    };
+    // Dummy Data
+    const dummyVisitors = [
+      { ip: "192.168.1.1", timestamp: "2024-03-05 10:00", userType: "Admin" },
+      { ip: "192.168.1.2", timestamp: "2024-03-05 11:00", userType: "Staff" },
+      { ip: "192.168.1.3", timestamp: "2024-03-05 17:00", userType: "Staff" },
+      { ip: "192.168.1.4", timestamp: "2024-03-05 13:00", userType: "Staff" },
+      { ip: "192.168.1.5", timestamp: "2024-03-05 07:00", userType: "Company" },
+    ];
+    setVisitorLogs(dummyVisitors);
 
-    getStaff();
+    const dummyForms = [
+      { staffNo: "KM001", name: "John Kamau", submissionTime: "10:30 AM", status: "Approved" },
+      { staffNo: "KM002", name: "Bil Smith", submissionTime: "11:00 AM", status: "Pending" },
+      { staffNo: "KM004", name: "Oroo Davis", submissionTime: "11:00 AM", status: "Approved" },
+      { staffNo: "KM007", name: "Rigathi Gachagua", submissionTime: "11:00 AM", status: "Pending" },
+      { staffNo: "KM012", name: "Otieno Smith", submissionTime: "11:00 AM", status: "Aproved" },
+    ];
+    setSubmittedForms(dummyForms);
+
+    const dummyStaff = [
+      { name: "John Kamau", staffNo: "KM001", email: "john@kemri.go.ke", role: "Staff" },
+      { name: "Bil Smith", staffNo: "KM002", email: "bill@kemri.go.ke", role: "Staff" },
+      { name: "Oroo Davis", staffNo: "KM004", email: "oroo@kemri.go.ke", role: "Staff" },
+      { name: "Rigathi Gachagua", staffNo: "KM007", email: "rigathi@kemri.go.ke", role: "Staff" },
+      { name: "Otieno Smith", staffNo: "KM012", email: "otieno@kemri.go.ke", role: "Staff" },
+    ];
+   
+    setStaffList(dummyStaff);
+
+    const dummyAnalytics = [
+      { date: "Mar 1", submissions: 5 },
+      { date: "Mar 2", submissions: 10 },
+      { date: "Mar 3", submissions: 8 },
+    ];
+    setAnalyticsData(dummyAnalytics);
   }, []);
 
   return (

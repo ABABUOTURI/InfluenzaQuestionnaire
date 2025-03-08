@@ -143,11 +143,14 @@ class Respondent(models.Model):
         return self.serial_number
 
 class Educator(models.Model):
-    name = models.CharField(max_length=50, unique=True, null=True, blank=True
+    educator_name = models.CharField(max_length=200, unique=True, null=True, blank=True
                             )  # Store each educator type uniquely
+    respondent = models.ForeignKey(Respondent, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return self.educator_name
+    
+
 
 class RespondentEducator(models.Model):
     respondent = models.ForeignKey(Respondent, on_delete=models.CASCADE)
@@ -157,10 +160,10 @@ class RespondentEducator(models.Model):
         return f"{self.respondent} - {self.educator}"
 
 class Topic(models.Model):
-    name = models.CharField(max_length=50,unique=True, null=True, blank=True)  # Store each topic uniquely
-
+    topic_name = models.CharField(max_length=200,unique=True, null=True, blank=True)  # Store each topic uniquely
+    respondent = models.ForeignKey(Respondent, on_delete=models.CASCADE)
     def __str__(self):
-        return self.name
+        return self.topic_name
 
 class RespondentTopic(models.Model):
     respondent = models.ForeignKey(Respondent, on_delete=models.CASCADE)

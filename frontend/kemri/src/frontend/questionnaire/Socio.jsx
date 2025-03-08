@@ -1,4 +1,8 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { 
+  // useContext, 
+  useState, 
+  useEffect 
+} from 'react';
 import { Formik, Form } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -20,11 +24,12 @@ import { useFormContext } from '../../store/form';
 const Socio = () => {
   // Always call hooks at the top level
   const context = useFormContext(); 
+  const [popup, setPopup] = useState({ show: false, message: "", type: "" });
   const navigate = useNavigate(); 
-  const [form] = useState({});
-  const { setForm } = useFormContext(); 
-  const [hasOlderSiblings, setHasOlderSiblings] = useState(false);
-  const [hasPocketMoney, setHasPocketMoney] = useState(false);
+  // const [form] = useState({});
+  // const { setForm } = useFormContext(); 
+  // const [hasOlderSiblings, setHasOlderSiblings] = useState(false);
+  // const [hasPocketMoney, setHasPocketMoney] = useState(false);
   const [tabValue, setTabValue] = useState(0);
 
   // Ensure `context` is available before extracting values
@@ -64,13 +69,34 @@ const Socio = () => {
   }, []);
 
   // Handle form input changes
-  const handle = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+  // const handle = (e) => {
+  //   setForm((prev) => ({
+  //     ...prev,
+  //     [e.target.name]: e.target.value,
+  //   }));
+  // };
+
+  const handleNext = () => {
+    if (Object.values(formData).some((value) => !value)) {
+      showPopup("Please fill in all required fields before proceeding.", "error");
+      return;
+    }
+
+    localStorage.setItem("formdata", JSON.stringify(formData));
+    showPopup("Form saved successfully! Redirecting to Next page", "success");
+
+    setTimeout(() => {
+      navigate("/index");
+    }, 3000);
   };
 
+  const showPopup = (message, type) => {
+    setPopup({ show: true, message, type });
+
+    setTimeout(() => {
+      setPopup({ show: false, message: "", type: "" });
+    }, 5000);
+  };
  
 
     return (
@@ -471,24 +497,46 @@ const Socio = () => {
 
 
 <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: 1 }}>
-<Button
-  type="submit"
-  variant="contained"
-  sx={{
-    minWidth: 100,
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.8)",
-    backgroundColor: "#57707A",
-    "&:hover": { backgroundColor: "#3d525a" },
-  }}
-  // Disables button if form is not valid
-  onClick={() => {
-      localStorage.setItem("formdata", JSON.stringify(formData))
-      navigate("/index");
-    }
-  }
->
-  NEXT
-</Button>
+<div>
+      {popup.show && (
+        <div style={{
+          position: "fixed",
+          top: "20px",
+          right: "20px",
+          backgroundColor: popup.type === "success" ? "#f7c948" : "#ff4d4d",
+          color: "white",
+          padding: "15px",
+          borderRadius: "8px",
+          display: "flex",
+          alignItems: "center",
+          boxShadow: "0px 4px 6px rgba(0,0,0,0.1)"
+        }}>
+          <span style={{
+            fontSize: "18px",
+            marginRight: "10px",
+            fontWeight: "bold"
+          }}>
+            {popup.type === "success" ? "✔" : "✖"}
+          </span>
+          <span>{popup.message}</span>
+        </div>
+      )}
+
+      <Button
+        type="submit"
+        variant="contained"
+        sx={{
+          minWidth: 100,
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.8)",
+          backgroundColor: "#57707A",
+          "&:hover": { backgroundColor: "#3d525a" },
+        }}
+        onClick={handleNext}
+      >
+        NEXT
+      </Button>
+    </div>
+
 
             </Box>
 
