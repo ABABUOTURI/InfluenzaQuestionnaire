@@ -108,3 +108,13 @@
     grid-template-columns: 1fr;
   }
 }
+.main-contents {
+  width: auto;
+  height: auto;  /* Adjusts dynamically */
+  overflow: visible; /* Ensures no scroll */
+  display: flex;
+  flex-direction: column; /* Stacks content properly */
+  justify-content: flex-start;
+  align-items: center;
+  padding: 20px; /* Adds spacing */
+}

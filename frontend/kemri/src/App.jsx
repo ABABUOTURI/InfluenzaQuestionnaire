@@ -7,7 +7,10 @@ import Signup from "./frontend/auth/Signup";
 import Reset from "./frontend/auth/ResetPass";
 import CompanyDashboard from "./frontend/questionnaire/company";
 import AdminDashboard from "./frontend/questionnaire/admin";
-import { FormContextProvider } from "./store/form"; // ✅ Correct import
+import { FormContextProvider } from "./store/form"; 
+import StaffList from "./frontend/component/StaffList";
+import Analytics from "./frontend/component/Analytics";
+import SubmittedForms from "./frontend/component/SubmittedForms";
 
 const App = () => {
   return (
@@ -21,6 +24,9 @@ const App = () => {
           <Route path="/reset" element={<Reset />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/company" element={<CompanyDashboard />} />
+          <Route path="/staff-list" element={<StaffList />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/submitted-forms" element={<SubmittedForms />} />
         </Routes>
       </Router>
     </FormContextProvider>

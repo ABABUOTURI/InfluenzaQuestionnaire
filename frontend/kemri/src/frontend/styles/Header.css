@@ -1,0 +1,15 @@
+/* // Header.css */
+.header {
+  /* width: calc(100% - 250px); */
+  width: 90%;
+  height: 60px;
+  background: #57707A;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  position: fixed;
+  top: 0;
+  left: 120px;
+}
