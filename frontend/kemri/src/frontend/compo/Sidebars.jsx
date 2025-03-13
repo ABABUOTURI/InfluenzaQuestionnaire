@@ -6,34 +6,34 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import StaffList from "../component/StaffList";
-import SubmittedForms from "../component/SubmittedForms";
-import Analytics from "../component/Analytics";
+import StaffLists from "../compo/Registeredstaff";
+import SubmittedForm from "../compo/SubmittedForm";
+import Analytic from "../compo/Analytic";
 
 // Sample Dashboard Component
 const Dashboard = () => (
   <div style={{ textAlign: "center", padding: "20px" }}>
-    <h2>Welcome to the Admin Dashboard</h2>
+    <h2>Welcome to the Company Dashboard</h2>
     <p>Select an option from the sidebar to get started.</p>
   </div>
 );
 
-const Sidebar = ({ onNavigate }) => {
+const Sidebars = ({ onNavigate }) => {
   return (
     <div className="sidebar">
       <nav>
-        <h2>Admin Panel</h2>
+        <h2 style={{marginTop:"25px"}}>Company Panel</h2>
         <ul>
           <li onClick={() => onNavigate(<Dashboard />)}>
             <DashboardIcon /> Dashboard
           </li>
-          <li onClick={() => onNavigate(<StaffList />)}>
+          <li onClick={() => onNavigate(<StaffLists />)}>
             <PeopleIcon /> Staff List
           </li>
-          <li onClick={() => onNavigate(<SubmittedForms />)}>
+          <li onClick={() => onNavigate(<SubmittedForm />)}>
             <AssignmentIcon /> Submitted Forms
           </li>
-          <li onClick={() => onNavigate(<Analytics />)}>
+          <li onClick={() => onNavigate(<Analytic />)}>
             <BarChartIcon /> Analytics
           </li>
         </ul>
@@ -42,4 +42,4 @@ const Sidebar = ({ onNavigate }) => {
   );
 };
 
-export default Sidebar;
+export default Sidebars;

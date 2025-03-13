@@ -4,8 +4,8 @@ import "../styles/Header.css";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-const Header = () => {
-  const navigate = useNavigate();
+const Headers = () => {
+    const navigate = useNavigate();
     const handleLogout = () => {
         // Perform logout actions, such as clearing authentication tokens
         localStorage.removeItem("authToken"); // Example: remove token from local storage
@@ -15,12 +15,12 @@ const Header = () => {
       };
   return (
     <div className="header">
-      <h1>Admin Dashboard</h1>
-       <Button variant="contained" color="primary" onClick={handleLogout}>
-          Logout
-        </Button>
+      <h1>Company Dashboard</h1>
+      <Button variant="contained" color="primary" onClick={handleLogout}>
+      Logout
+    </Button>
     </div>
   );
 };
 
-export default Header;
+export default Headers;
