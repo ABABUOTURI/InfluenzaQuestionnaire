@@ -291,7 +291,7 @@ const Socio = () => {
       }}
       label="Whom do you stay with?"
     >
-      <MenuItem value="Father and mother">Father and mother</MenuItem>
+      <MenuItem value="Father and Mother">Father and mother</MenuItem>
       <MenuItem value="Mother only">Mother only</MenuItem>
       <MenuItem value="Father only">Father only</MenuItem>
       <MenuItem value="Relative">Relative</MenuItem>
@@ -312,11 +312,11 @@ const Socio = () => {
       }}
       label="Occupation of the Guardian"
     >
-      <MenuItem value="Farm worker">Farm worker</MenuItem>
-      <MenuItem value="Self employed">Self employed</MenuItem>
+      <MenuItem value="Farm Worker">Farm worker</MenuItem>
+      <MenuItem value="Self Employed">Self employed</MenuItem>
       <MenuItem value="Employed by someone">Employed by someone</MenuItem>
       <MenuItem value="Professional">Professional</MenuItem>
-      <MenuItem value="Others">Others</MenuItem>
+      <MenuItem value="Other">Others</MenuItem>
     </Select>
     </FormControl>
 

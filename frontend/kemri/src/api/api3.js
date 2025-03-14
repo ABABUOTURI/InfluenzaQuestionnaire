@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000/submit/';  // Your API endpoint
+const API_URL = 'http://localhost:8000/api/submit/';  // Your API endpoint
 
 export const submitForm = async (formData) => {
   try {

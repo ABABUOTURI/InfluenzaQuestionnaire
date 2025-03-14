@@ -3,7 +3,7 @@ import { Container, TextField, Button, Typography, Box, IconButton, InputAdornme
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../../assets/k.png';
-import { getUsers,registerUser } from '../../api/api1'; 
+import { registerUser } from '../../api/api1'; 
 import { Snackbar, Alert } from "@mui/material";
 //import { CheckCircle } from "lucide-react"; 
 // import SuccessAlert from "../SuccessAlert";
@@ -38,43 +38,80 @@ const Signup = () => {
         return password.length >= 6;
     };
 
+    // const handleSubmit = async () => {
+    //     setError('');
+    
+    //     // Staff Number Validation
+    //     if (!validateStaffNo(staffNo)) {
+    //         showPopup("Staff Number must start with KM, AD, or CM followed by digits.", "error");
+    //         return;
+    //     }
+    
+    //     // Email Validation
+    //     if (!validateEmail(email)) {
+    //         showPopup("Invalid email format. Use example@kemri.go.ke.", "error");
+    //         return;
+    //     }
+    
+    //     // Password Validation
+    //     if (!validatePassword(password)) {
+    //         showPopup("Password must be at least 6 characters long.", "error");
+    //         return;
+    //     }
+    
+    //     // Confirm Password Validation
+    //     if (password !== confirmPassword) {
+    //         showPopup("Passwords do not match.", "error");
+    //         return;
+    //     }
+    
+    //     try {
+    //         console.log("Sending data:", { staffNo, email, password }); // ✅ Debugging log
+    //         await registerUser(staffNo, email, password);
+    //         showPopup("Registration successful!", "success");
+    //         setTimeout(() => navigate("/"), 3000); // ✅ Redirect after 3 sec
+    //     } catch (error) {
+    //         console.error("Registration Error:", error.response?.data || error.message); // ✅ Show exact error
+    //         showPopup(error.response?.data?.message || "Registration failed. Please try again.", "error");
+    //     }
+    // };
     const handleSubmit = async () => {
         setError('');
-    
-        // Staff Number Validation
+        
         if (!validateStaffNo(staffNo)) {
             showPopup("Staff Number must start with KM, AD, or CM followed by digits.", "error");
             return;
         }
-    
-        // Email Validation
+        
         if (!validateEmail(email)) {
             showPopup("Invalid email format. Use example@kemri.go.ke.", "error");
             return;
         }
     
-        // Password Validation
         if (!validatePassword(password)) {
             showPopup("Password must be at least 6 characters long.", "error");
             return;
         }
     
-        // Confirm Password Validation
         if (password !== confirmPassword) {
             showPopup("Passwords do not match.", "error");
             return;
         }
     
         try {
-            console.log("Sending data:", { staffNo, email, password }); // ✅ Debugging log
-            await registerUser(staffNo, email, password);
+            console.log("Sending data:", { staffNo, email, password });  // ✅ Debugging log
+    
+            const response = await registerUser(staffNo, email, password);
+            console.log("Response:", response);  // ✅ Log server response
+    
             showPopup("Registration successful!", "success");
-            setTimeout(() => navigate("/"), 3000); // ✅ Redirect after 3 sec
+            setTimeout(() => navigate("/"), 3000);
         } catch (error) {
-            console.error("Registration Error:", error.response?.data || error.message); // ✅ Show exact error
-            showPopup(error.response?.data?.message || "Registration failed. Please try again.", "error");
+            console.error("Registration Error:", error.response?.data || error.message);
+            showPopup(error.response?.data?.email?.[0] || "Registration failed. Please try again.", "error");
         }
     };
+    
 
     // Function to show popup alert
     const showPopup = (message, type) => {

@@ -109,51 +109,57 @@ const Index = () => {
   //   return true;
   // };
 
+
+  
   // Submit form data to API
+  const API_URL = "http://localhost:8000/api/forms/"; // Updated endpoint
+
+ 
+
   const handleSubmit = async () => {
     if (!formData || Object.values(formData).some((value) => value === "" || value === null)) {
       showPopup("Please fill in all required fields.", "error");
       return;
     }
-
+  
     console.log("Submitting:", JSON.stringify(formData, null, 2));
-
+  
     try {
-      const response = await fetch("http://localhost:8000/api/submit/", {
+      const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-
+  
       const responseData = await response.json();
       console.log("Response from server:", responseData);
-
+  
       if (response.ok) {
         showPopup("Form submitted successfully!", "success");
-
+  
         // Hide success message after 3 seconds and navigate to /socio
         setTimeout(() => {
           navigate("/socio");
-        }, 5000);
+        }, 3000); // Adjusted timeout to 3 seconds
       } else {
-        showPopup(`Submission failed: ${JSON.stringify(responseData)}`, "error");
+        showPopup(`Submission failed: ${responseData.message || JSON.stringify(responseData)}`, "error");
+
       }
     } catch (error) {
       console.error("Error submitting form:", error);
       showPopup("An error occurred. Please try again.", "error");
     }
   };
-
+  
   const showPopup = (message, type) => {
     setPopup({ show: true, message, type });
-
+  
     // Hide popup after 3 seconds
     setTimeout(() => {
       setPopup({ show: false, message: "", type: "" });
-    }, 5000);
+    }, 3000);
   };
-  
-  
+
 
     return (
       <Formik

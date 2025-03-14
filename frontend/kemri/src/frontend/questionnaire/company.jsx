@@ -113,7 +113,7 @@ import React, { useState } from "react";
 import "../styles/CompanyDashboard.css";
 import Sidebars from "../compo/Sidebars";
 import Headers from "../compo/Headers";
-import StaffLists from "../compo/StaffLists";
+import StaffLists from "../compo/Registeredstaff";
 import SubmittedForm from "../compo/SubmittedForm";
 import Analytic from "../compo/Analytic";
 

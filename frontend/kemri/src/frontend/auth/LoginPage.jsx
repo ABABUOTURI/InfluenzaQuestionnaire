@@ -30,51 +30,49 @@ const LoginPage = () => {
 
     const handleSubmit = async () => {
         setShowAlert(false);
-
+    
         if (!validateStaffNo(staffNo)) {
             setAlertType("error");
             setAlertMessage("Staff number must be in the format KM, AD, or CM followed by 1 to 3 digits (e.g., KM1, KM12, KM123).");
             setShowAlert(true);
             return;
         }
-
+    
         try {
             const response = await fetch("http://127.0.0.1:8000/api/login/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ staffNo, password }),
             });
-
-            if (!response.ok) {
-                setAlertType("error");
-                setAlertMessage("Invalid staff number or password.");
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+                setAlertType("success");
+                setAlertMessage(data.message);
                 setShowAlert(true);
-                return;
+    
+                setTimeout(() => {
+                    if (staffNo.startsWith("KM")) {
+                        navigate("/socio");
+                    } else if (staffNo.startsWith("CM")) {
+                        navigate("/company");
+                    } else if (staffNo.startsWith("AD")) {
+                        navigate("/admin");
+                    }
+                }, 3000);
+            } else {
+                setAlertType("error");
+                setAlertMessage(data.message);
+                setShowAlert(true);
             }
-
-            setAlertType("success");
-            setAlertMessage("Login Successful!");
-            setShowAlert(true);
-
-            setTimeout(() => {
-                if (staffNo.startsWith("KM")) {
-                    navigate("/socio");
-                } else if (staffNo.startsWith("CM")) {
-                    navigate("/company");
-                } else if (staffNo.startsWith("AD")) {
-                    navigate("/admin");
-                } else {
-                    setAlertType("error");
-                    setAlertMessage("Invalid staff number format.");
-                    setShowAlert(true);
-                }
-            }, 3000);
         } catch (error) {
             setAlertType("error");
             setAlertMessage("An error occurred. Please try again.");
             setShowAlert(true);
         }
     };
+    
 
     return (
         <Box
