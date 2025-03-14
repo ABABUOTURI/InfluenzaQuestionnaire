@@ -11,6 +11,13 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
+import sqlite3
+
+def enable_wal_mode():
+    with sqlite3.connect('kemri.db') as conn:
+        conn.execute("PRAGMA journal_mode=WAL;")
+
+enable_wal_mode()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -92,6 +99,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, "sqliteDB", "kemri.db"),  # Updated path
+         'OPTIONS': {
+            'timeout': 20,  # Wait up to 20 seconds for the lock to clear
+        }
     }
 }
 

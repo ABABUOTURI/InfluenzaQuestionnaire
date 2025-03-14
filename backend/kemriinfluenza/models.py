@@ -1,5 +1,206 @@
+
+# # from django.db import models
+# # from django.core.validators import RegexValidator
+
+# # class User(models.Model):
+# #     staff_no = models.CharField(
+# #         max_length=10,
+# #         unique=True,
+# #         validators=[
+# #             RegexValidator(
+# #                 regex=r'^(KM|CM|AD).*$', 
+# #                 message="Staff number must start with KM, CM, or AD."
+# #             )
+# #         ]
+# #     )
+# #     email = models.EmailField(
+# #         unique=True,
+# #         validators=[
+# #             RegexValidator(
+# #                 regex=r'^A.*@kemri\.go\.ke$', 
+# #                 message="Email must start with 'A' and end with '@kemri.go.ke'."
+# #             )
+# #         ]
+# #     )
+# #     password = models.CharField(max_length=255)
+
+# #     class Meta:
+# #         constraints = [
+# #             models.CheckConstraint(
+# #                 check=models.Q(staff_no__startswith='KM') | models.Q(staff_no__startswith='CM') | models.Q(staff_no__startswith='AD'),
+# #                 name="staff_no_valid_prefix"
+# #             )
+# #         ]
+
+# # class Respondent(models.Model):
+# #     id = models.CharField(max_length=100, primary_key=True, null=False)
+# #     age = models.IntegerField()
+    
+# #     relationship_choices = [
+# #         ('Father and Mother', 'Father and Mother'),
+# #         ('Mother only', 'Mother only'),
+# #         ('Father only', 'Father only'),
+# #         ('Relative', 'Relative')
+# #     ]
+# #     relationship = models.CharField(max_length=20, choices=relationship_choices)
+
+# #     education_choices = [
+# #         ('None', 'None'),
+# #         ('Primary', 'Primary'),
+# #         ('Secondary', 'Secondary'),
+# #         ('Tertiary Education', 'Tertiary Education')
+# #     ]
+# #     guardian_education = models.CharField(max_length=20, choices=education_choices)
+
+# #     religion_choices = [
+# #         ('Catholic', 'Catholic'),
+# #         ('Protestant', 'Protestant'),
+# #         ('Muslim', 'Muslim'),
+# #         ('SDA', 'SDA'),
+# #         ('None', 'None')
+# #     ]
+# #     respondent_religion = models.CharField(max_length=15, choices=religion_choices)
+
+# #     yes_no_choices = [('YES', 'YES'), ('NO', 'NO')]
+
+# #     has_siblings = models.CharField(max_length=3, choices=yes_no_choices)
+# #     gets_pocket_money = models.CharField(max_length=3, choices=yes_no_choices)
+
+# #     def __str__(self):
+# #         return self.name
+
+# # class Educator(models.Model):
+# #     EDUCATOR_CHOICES = [
+# #         ("Teacher", "Teacher"),
+# #         ("Parents", "Parents"),
+# #         ("Health worker", "Health worker"),
+# #         ("Friends", "Friends"),
+# #         ("Radio/Magazine/TV", "Radio/Magazine/TV"),
+# #     ]
+# #     educator_name = models.CharField(max_length=200, unique=True, choices=EDUCATOR_CHOICES)
+
+# #     def __str__(self):
+# #         return self.educator_name
+
+# # class RespondentEducator(models.Model):
+# #     respondent = models.ForeignKey(Respondent, on_delete=models.CASCADE)
+# #     educators = models.ManyToManyField(Educator)
+
+# #     def __str__(self):
+# #         return f"{self.respondent} - {', '.join([educator.educator_name for educator in self.educators.all()])}"
+
+# # class Topic(models.Model):
+# #     TOPIC_CHOICES = [
+# #         ("Sexuality", "Sexuality"),
+# #         ("Abstinence", "Abstinence"),
+# #         ("Condoms", "Condoms"),
+# #         ("HIV/STI", "HIV/STI"),
+# #         ("Relationships", "Relationships"),
+# #     ]
+# #     topic_name = models.CharField(max_length=200, unique=True, choices=TOPIC_CHOICES)
+
+# #     def __str__(self):
+# #         return self.topic_name
+
+# # class RespondentTopic(models.Model):
+# #     respondent = models.ForeignKey(Respondent, on_delete=models.CASCADE)
+# #     topics = models.ManyToManyField(Topic)
+
+# #     def __str__(self):
+# #         return f"{self.respondent} - {', '.join([topic.topic_name for topic in self.topics.all()])}"
+
+# from django.db import models
+# from django.core.validators import RegexValidator
+# from django.utils.timezone import now
+
+# class User(models.Model):
+#     staff_no = models.CharField(
+#         max_length=10,
+#         unique=True,
+#         validators=[
+#             RegexValidator(
+#                 regex=r'^(KM|CM|AD).*$', 
+#                 message="Staff number must start with KM, CM, or AD."
+#             )
+#         ]
+#     )
+#     email = models.EmailField(
+#         unique=True,
+#         validators=[
+#             RegexValidator(
+#                 regex=r'^A.*@kemri\.go\.ke$', 
+#                 message="Email must start with 'A' and end with '@kemri.go.ke'."  
+#             )
+#         ]
+#     )
+#     password = models.CharField(max_length=255)  # Store hashed passwords
+
+#     def __str__(self):
+#         return f"{self.staff_no} - {self.email}"
+
+# class SubmittedForm(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Track staff submitting the form
+#     submission_time = models.DateTimeField(default=now)  # Auto capture timestamp
+
+#     # Form Fields
+#     age = models.IntegerField()
+    
+#     RELATIONSHIP_CHOICES = [
+#         ('Father and Mother', 'Father and Mother'),
+#         ('Mother only', 'Mother only'),
+#         ('Father only', 'Father only'),
+#         ('Relative', 'Relative')
+#     ]
+#     relationship = models.CharField(max_length=20, choices=RELATIONSHIP_CHOICES)
+
+#     EDUCATION_CHOICES = [
+#         ('None', 'None'),
+#         ('Primary', 'Primary'),
+#         ('Secondary', 'Secondary'),
+#         ('Tertiary Education', 'Tertiary Education')
+#     ]
+#     guardian_education = models.CharField(max_length=20, choices=EDUCATION_CHOICES)
+
+#     RELIGION_CHOICES = [
+#         ('Catholic', 'Catholic'),
+#         ('Protestant', 'Protestant'),
+#         ('Muslim', 'Muslim'),
+#         ('SDA', 'SDA'),
+#         ('None', 'None')
+#     ]
+#     respondent_religion = models.CharField(max_length=15, choices=RELIGION_CHOICES)
+
+#     YES_NO_CHOICES = [('YES', 'YES'), ('NO', 'NO')]
+#     has_siblings = models.CharField(max_length=3, choices=YES_NO_CHOICES)
+#     gets_pocket_money = models.CharField(max_length=3, choices=YES_NO_CHOICES)
+
+#     EDUCATOR_CHOICES = [
+#         ("Teacher", "Teacher"),
+#         ("Parents", "Parents"),
+#         ("Health worker", "Health worker"),
+#         ("Friends", "Friends"),
+#         ("Radio/Magazine/TV", "Radio/Magazine/TV"),
+#     ]
+#     educator = models.CharField(max_length=200, choices=EDUCATOR_CHOICES)
+
+#     TOPIC_CHOICES = [
+#         ("Sexuality", "Sexuality"),
+#         ("Abstinence", "Abstinence"),
+#         ("Condoms", "Condoms"),
+#         ("HIV/STI", "HIV/STI"),
+#         ("Relationships", "Relationships"),
+#     ]
+#     topic = models.CharField(max_length=200, choices=TOPIC_CHOICES)
+
+#     def __str__(self):
+#         return f"Form by {self.user.staff_no} on {self.submission_time}"
+
+
 from django.db import models
-from django.core.validators import RegexValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
+import django.utils.timezone
+# from django.utils import timezone
+import re
 
 
 class User(models.Model):
@@ -8,166 +209,157 @@ class User(models.Model):
         unique=True,
         validators=[
             RegexValidator(
-                regex=r'^(KM|CM|AD).*$', 
+                regex=r'^(KM|CM|AD).*$',
                 message="Staff number must start with KM, CM, or AD."
             )
         ]
     )
     email = models.EmailField(
+        max_length=254,
         unique=True,
         validators=[
             RegexValidator(
-                regex=r'^A%.*@kemri\.go\.ke$', 
-                message="Email must start with 'A%' and end with '@kemri.go.ke'."
+                regex=r'^[A-Za-z].*@kemri\.go\.ke$',
+                message="Email must start with a letter and end with '@kemri.go.ke'."
             )
         ]
     )
     password = models.CharField(max_length=255)
 
-    class Meta:
-        constraints = [
-            models.CheckConstraint(
-                check=models.Q(staff_no__startswith='KM') | models.Q(staff_no__startswith='CM') | models.Q(staff_no__startswith='AD'),
-                name="staff_no_valid_prefix"
-            ),
-            models.CheckConstraint(
-                check=models.Q(email__regex=r'^A%.*@kemri\.go\.ke$'),
-                name="email_valid_domain"
-            )
-        ]
-
-# class Respondent(models.Model):
-#     id = models.CharField(max_length=100, primary_key=True, null=False)
-#     date_of_data_collection = models.DateField(auto_now_add=True, blank=True)
-#     age = models.IntegerField()
-#     relationship = models.CharField(max_length=100)
-#     guardian_occupation = models.CharField(max_length=100)
-#     guardian_education = models.CharField(max_length=100)
-#     respondent_religion = models.CharField(max_length=100)
-#     family_size = models.IntegerField()
-#     has_siblings = models.BooleanField()
-#     siblings_have_partners = models.BooleanField()
-#     gets_pocket_money = models.BooleanField()
-#     pocket_money_adequate = models.BooleanField()
-
-#     def __str__(self):
-#         return self.serial_number
+    def __str__(self):
+        return self.staff_no
 
 
-# class Topic(models.Model):
-#     topic_name = models.CharField(max_length=200)
-#     respondent = models.ForeignKey(Respondent, on_delete=models.CASCADE)
+class SubmittedForm(models.Model):
+    submission_time = models.DateTimeField(default=django.utils.timezone.now)
+    serial_number = models.CharField(max_length=50, unique=True, blank=True)  # Unique serial number
+    # date_of_data_collection = models.DateTimeField(default=timezone.now) 
+    age = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(30)]
+    )
 
-#     def __str__(self):
-#         return self.topic_name
+    relationship = models.CharField(
+        choices=[
+            ('Father and Mother', 'Father and Mother'),
+            ('Mother only', 'Mother only'),
+            ('Father only', 'Father only'),
+            ('Relative', 'Relative')
+        ],
+        max_length=20
+    )
 
+    guardian_occupation = models.CharField(
+        choices=[
+            ('Farm Worker', 'Farm Worker'),
+            ('Self Employed', 'Self Employed'),
+            ('Employed by someone', 'Employed by someone'),
+            ('Professional', 'Professional'),
+            ('Other', 'Other')
+        ],
+        max_length=20
+    )
 
-# class Educator(models.Model):
-#     respondent = models.ForeignKey(Respondent, on_delete=models.CASCADE)
-#     educator_name = models.CharField(max_length=200)
+    guardian_education = models.CharField(
+        choices=[
+            ('None', 'None'),
+            ('Primary', 'Primary'),
+            ('Secondary', 'Secondary'),
+            ('Tertiary Education', 'Tertiary Education')
+        ],
+        max_length=20
+    )
 
-#     def __str__(self):
-#         return self.educator_name
+    respondent_religion = models.CharField(
+        choices=[
+            ('Catholic', 'Catholic'),
+            ('Protestant', 'Protestant'),
+            ('Muslim', 'Muslim'),
+            ('SDA', 'SDA'),
+            ('None', 'None')
+        ],
+        max_length=15
+    )
 
-class Respondent(models.Model):
-    id = models.CharField(max_length=100, primary_key=True, null=False)
-    date_of_data_collection = models.DateField(auto_now_add=True, blank=True)
-    age = models.IntegerField()
-    relationship_choices = [
-        ('Father and mother', 'Father and Mother'),
-        ('Mother only', 'Mother only'),
-        ('Father only', 'Father only'),
-        ('Relative', 'Relative')
-    ]
-    relationship = models.CharField(max_length=20, choices=relationship_choices)
+    family_size = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(20)]  # Assuming reasonable family size
+    )
 
-    occupation_choices = [
-        ('Farm worker', 'Farm worker'),
-        ('Self employed', 'Self employed'),
-        ('Employed by someone', 'Employed by someone'),
-        ('Professional', 'Professional'),
-        ('Other state', 'Other state')
-    ]
-    guardian_occupation = models.CharField(max_length=30, choices=occupation_choices)
+    has_siblings = models.CharField(
+        choices=[('YES', 'YES'), ('NO', 'NO')],
+        max_length=3
+    )
 
-    education_choices = [
-        ('None', 'None'),
-        ('Primary', 'Primary'),
-        ('Secondary', 'Secondary'),
-        ('Tertiary Education', 'Tertiary Education')
-    ]
-    guardian_education = models.CharField(max_length=20, choices=education_choices)
+    siblings_have_partners = models.CharField(
+        choices=[('YES', 'YES'), ('NO', 'NO')],
+        max_length=3
+    )
 
-    religion_choices = [
-        ('Catholic', 'Catholic'),
-        ('Protestant', 'Protestant'),
-        ('Muslim', 'Muslim'),
-        ('SDA', 'SDA'),
-        ('None', 'None')
-    ]
-    respondent_religion = models.CharField(max_length=15, choices=religion_choices)
+    pocket_money_adequate = models.CharField(
+        choices=[('YES', 'YES'), ('NO', 'NO')],
+        max_length=3
+    )
 
-    family_size = models.IntegerField()
+    financial_support = models.CharField(
+        choices=[
+            ('Relative', 'Relative'),
+            ('Boyfriend', 'Boyfriend'),
+            ('Grandparents', 'Grandparents'),
+            ('Other friends', 'Other friends')
+        ],
+        max_length=20
+    )
 
-    yes_no_choices = [('YES', 'YES'), ('NO', 'NO')]
+    guardian_visits = models.CharField(
+        choices=[('YES', 'YES'), ('NO', 'NO')],
+        max_length=3
+    )
 
-    has_siblings = models.CharField(max_length=3, choices=yes_no_choices)
-    siblings_have_partners = models.CharField(max_length=3, choices=yes_no_choices, null=True, blank=True)
-    gets_pocket_money = models.CharField(max_length=3, choices=yes_no_choices)
-    pocket_money_adequate = models.CharField(max_length=3, choices=yes_no_choices, null=True, blank=True)
+    alternative_visitor = models.CharField(
+        choices=[
+            ('Boyfriend', 'Boyfriend'),
+            ('Relatives', 'Relatives'),
+            ('Brothers/Sisters', 'Brothers/Sisters'),
+            ('Man friend', 'Man friend'),
+            ('None', 'None')
+        ],
+        max_length=20
+    )
 
-    financial_support_choices = [
-        ('Relative', 'Relative'),
-        ('Boyfriend', 'Boyfriend'),
-        ('Grandparents', 'Grandparents'),
-        ('Other friends', 'Other friends')
-    ]
-    financial_support = models.CharField(max_length=50, choices=financial_support_choices, null=True, blank=True)
+    access_to_reproductive_health_info = models.CharField(
+        choices=[('YES', 'YES'), ('NO', 'NO')],
+        max_length=3
+    )
 
-    guardian_visits = models.CharField(max_length=3, choices=yes_no_choices)
+    information_adequate = models.CharField(
+        choices=[('YES', 'YES'), ('NO', 'NO')],
+        max_length=3
+    )
 
-    alternative_visitor_choices = [
-        ('Boyfriend', 'Boyfriend'),
-        ('Relatives', 'Relatives'),
-        ('Brothers/Sisters', 'Brothers/Sisters'),
-        ('Man friend', 'Man friend'),
-        ('None', 'None')
-    ]
-    alternative_visitor = models.CharField(max_length=20, choices=alternative_visitor_choices, null=True, blank=True)
+    educator_name = models.CharField(
+        choices=[
+            ('Teacher', 'Teacher'),
+            ('Parents', 'Parents'),
+            ('Health worker', 'Health worker'),
+            ('Friends', 'Friends'),
+            ('Radio/Magazine/TV', 'Radio/Magazine/TV')
+        ],
+        max_length=200
+    )
 
-    # access_to_reproductive_health_info = models.CharField(max_length=3, choices=yes_no_choices)
-    access_to_reproductive_health_info = models.CharField(max_length=3, choices=yes_no_choices, default='No')
-    information_adequate = models.CharField(max_length=3, choices=yes_no_choices, default='No')
+    topic_name = models.CharField(
+        choices=[
+            ('Sexuality', 'Sexuality'),
+            ('Abstinence', 'Abstinence'),
+            ('Condoms', 'Condoms'),
+            ('HIV/STI', 'HIV/STI'),
+            ('Relationships', 'Relationships')
+        ],
+        max_length=200
+    )
+
+    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+
 
     def __str__(self):
-        return self.serial_number
-
-class Educator(models.Model):
-    educator_name = models.CharField(max_length=200, unique=True, null=True, blank=True
-                            )  # Store each educator type uniquely
-    respondent = models.ForeignKey(Respondent, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.educator_name
-    
-
-
-class RespondentEducator(models.Model):
-    respondent = models.ForeignKey(Respondent, on_delete=models.CASCADE)
-    educator = models.ForeignKey(Educator, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.respondent} - {self.educator}"
-
-class Topic(models.Model):
-    topic_name = models.CharField(max_length=200,unique=True, null=True, blank=True)  # Store each topic uniquely
-    respondent = models.ForeignKey(Respondent, on_delete=models.CASCADE)
-    def __str__(self):
-        return self.topic_name
-
-class RespondentTopic(models.Model):
-    respondent = models.ForeignKey(Respondent, on_delete=models.CASCADE)
-    topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.respondent} - {self.topic}"
+        return f"Submission by {self.user.staff_no} on {self.submission_time}"

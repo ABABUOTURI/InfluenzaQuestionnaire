@@ -1,44 +1,43 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
 import sqlite3
 import os
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from typing import List
 
-app = FastAPI()
+# ✅ Use APIRouter for modular structure
+router = APIRouter()
 
-# Allow CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# ✅ Database path setup
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+DATABASE = os.path.join(BASE_DIR, "sqliteDB", "kemri.db")
 
-DB_PATH = os.path.join("backend", "sqliteDB", "kemri.db")
+# ✅ Debugging database existence
+print(f"Checking database at: {DATABASE}")
+if not os.path.exists(DATABASE):
+    raise Exception(f"Database not found at {DATABASE}")
 
-def fetch_data(query, params=()):
+# ✅ Define User Model
+class User(BaseModel):
+    id: int
+    staff_no: str
+    email: str
+
+# ✅ Function to Fetch Users
+def get_users():
+    if not os.path.exists(DATABASE):
+        raise HTTPException(status_code=500, detail="Database not found")
+
     try:
-        with sqlite3.connect(DB_PATH) as conn:
-            cursor = conn.cursor()
-            cursor.execute(query, params)
-            columns = [column[0] for column in cursor.description]
-            results = [dict(zip(columns, row)) for row in cursor.fetchall()]
-        return results
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, staff_no, email FROM kemriinfluenza_user")
+        users = [{"id": row[0], "staff_no": row[1], "email": row[2]} for row in cursor.fetchall()]
+        conn.close()
+        return users
     except sqlite3.Error as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
 
-# @app.get("/api/visitor_logs")
-# def get_visitor_logs():
-#     return fetch_data("SELECT ip, timestamp, userType FROM visitor_logs")
-
-@app.get("/api/submitted_forms")
-def get_submitted_forms():
-    return fetch_data("SELECT staffNo, name, submissionTime, status FROM kemriinfuenza_respondent")
-
-@app.get("/api/users")
-def get_staff_list():
-    return fetch_data("SELECT name, staffNo, email, role FROM auth_user")
-
-# @app.get("/api/analytics")
-# def get_analytics():
-#     return fetch_data("SELECT date, submissions FROM analytics")
+# ✅ API Route for fetching users
+@router.get("/", response_model=List[User])
+def fetch_users():
+    return get_users()
