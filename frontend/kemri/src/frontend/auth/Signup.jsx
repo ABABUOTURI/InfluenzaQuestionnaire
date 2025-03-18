@@ -38,43 +38,6 @@ const Signup = () => {
         return password.length >= 6;
     };
 
-    // const handleSubmit = async () => {
-    //     setError('');
-    
-    //     // Staff Number Validation
-    //     if (!validateStaffNo(staffNo)) {
-    //         showPopup("Staff Number must start with KM, AD, or CM followed by digits.", "error");
-    //         return;
-    //     }
-    
-    //     // Email Validation
-    //     if (!validateEmail(email)) {
-    //         showPopup("Invalid email format. Use example@kemri.go.ke.", "error");
-    //         return;
-    //     }
-    
-    //     // Password Validation
-    //     if (!validatePassword(password)) {
-    //         showPopup("Password must be at least 6 characters long.", "error");
-    //         return;
-    //     }
-    
-    //     // Confirm Password Validation
-    //     if (password !== confirmPassword) {
-    //         showPopup("Passwords do not match.", "error");
-    //         return;
-    //     }
-    
-    //     try {
-    //         console.log("Sending data:", { staffNo, email, password }); // ✅ Debugging log
-    //         await registerUser(staffNo, email, password);
-    //         showPopup("Registration successful!", "success");
-    //         setTimeout(() => navigate("/"), 3000); // ✅ Redirect after 3 sec
-    //     } catch (error) {
-    //         console.error("Registration Error:", error.response?.data || error.message); // ✅ Show exact error
-    //         showPopup(error.response?.data?.message || "Registration failed. Please try again.", "error");
-    //     }
-    // };
     const handleSubmit = async () => {
         setError('');
         
@@ -270,23 +233,7 @@ const Signup = () => {
                     }}
                 />
 
-                {/* Signup Button */}
-                {/* <Button
-                    variant="contained"
-                    sx={{
-                        mt: 2,
-                        borderRadius: '25px',
-                        backgroundColor: '#57707A',
-                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.8)',
-                        '&:hover': { backgroundColor: '#C5BAC4' },
-                        width: { xs: '100%', sm: '80%', md: '50%' },
-                        alignSelf: 'center',
-                        textTransform: 'none',
-                    }}
-                    onClick={handleSubmit}
-                >
-                    Signup
-                </Button> */}
+                
                  <div>
                  <Button
                     variant="contained"
@@ -330,9 +277,6 @@ const Signup = () => {
                 </Alert>
             </Snackbar>
         </div>
-                {/* {showAlert && <SuccessAlert message="Signup Successful!" onClose={() => navigate('/')} />} */}
-
-                {/* Back Arrow Button */}
              
                     
                     <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>

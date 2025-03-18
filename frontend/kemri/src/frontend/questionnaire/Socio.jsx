@@ -42,8 +42,10 @@ const Socio = () => {
   const getCurrentDateTime = () => new Date().toISOString().slice(0, 19).replace("T", " ");
 
   const [formData, setFormData] = useState({
-    serial_number: generateSerialNumber(), // Auto-generate serial number
-    date_of_data_collection: getCurrentDateTime(), 
+    // serial_number: generateSerialNumber(), // Auto-generate serial number
+    // date_of_data_collection: getCurrentDateTime(), 
+    serial_number: "",
+    date_of_data_collection: "",
     age: "",
     relationship: "",
     guardian_occupation: "",
@@ -57,14 +59,22 @@ const Socio = () => {
   });
 
   // Generate serial number and date only once when component mounts
-  useEffect(() => {
-    const generateSerialNumber = () => `SN${Math.floor(100000 + Math.random() * 900000)}`;
-    const currentDate = new Date().toISOString().slice(0, 19).replace("T", " ");
+  // useEffect(() => {
+  //   const generateSerialNumber = () => `SN${Math.floor(100000 + Math.random() * 900000)}`;
+  //   const currentDate = new Date().toISOString().slice(0, 19).replace("T", " ");
 
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     serial_number: generateSerialNumber(),
+  //     date_of_data_collection: getCurrentDateTime(),
+  //     // date_of_data_collection: currentDate,
+  //   }));
+  // }, []);
+  useEffect(() => {
     setFormData((prevData) => ({
       ...prevData,
       serial_number: generateSerialNumber(),
-      date_of_data_collection: currentDate,
+      date_of_data_collection: getCurrentDateTime(),
     }));
   }, []);
 
@@ -76,53 +86,118 @@ const Socio = () => {
   //   }));
   // };
 
-  const handleNext = () => {
-    if (Object.values(formData).some((value) => !value)) {
-      showPopup("Please fill in all required fields before proceeding.", "error");
+  // const handleNext = async (validateForm) => {
+  //   try {
+  //     const errors = await validateForm(); // Validate using Formik
+  //     console.log("Validation errors:", errors); // Debugging
+  
+  //     if (Object.keys(errors).length > 0) {
+  //       showPopup("Please fill in all required fields before proceeding.", "error");
+  //       return;
+  //     }
+  
+  //     localStorage.setItem("formdata", JSON.stringify(formData));
+  //     showPopup("Form saved successfully! Redirecting to Next page", "success");
+  
+  //     setTimeout(() => {
+  //       navigate("/index");
+  //     }, 3000);
+  //   } catch (error) {
+  //     console.error("Validation error:", error);
+  //   }
+  // };
+  const handleNext = async (validateForm) => {
+    const errors = await validateForm(); // Validate using Formik
+  
+    if (Object.keys(errors).length > 0) {
+      // Show an alert for each specific field that has an error
+      Object.keys(errors).forEach((field) => {
+        showPopup(errors[field], "error");
+      });
       return;
     }
-
+  
+    // Save form data
     localStorage.setItem("formdata", JSON.stringify(formData));
     showPopup("Form saved successfully! Redirecting to Next page", "success");
-
+  
     setTimeout(() => {
       navigate("/index");
     }, 3000);
   };
-
+  
   const showPopup = (message, type) => {
     setPopup({ show: true, message, type });
-
+  
     setTimeout(() => {
       setPopup({ show: false, message: "", type: "" });
-    }, 5000);
+    }, 3000);
   };
+  
  
 
     return (
-        <Formik
-            initialValues={{
-              serial_number: data?.serial_number,
-              date_of_data_collection: data?.date_of_data_collection,
-              age: data?.age,
-              relationship: data?.relationship,
-              guardian_occupation: data?.guardian_occupation,
-              guardian_education: data?.guardian_education,
-              respondent_religion: data?.respondent_religion,
-              family_size: data?.family_size,
-              has_siblings: data?.has_siblings,
-              siblings_have_partners: data?.siblings_have_partners,
-              gets_pocket_money: data?.gets_pocket_money,
-              pocket_money_adequate: data?.pocket_money_adequate,
-            }}
-            validationSchema={socioValidationSchema} // Validation schema imported
-            onSubmit={(values) => {
-              console.log(values);
-            }}
-        >
-    
-    
-        {({ values, handleChange, setFieldValue }) => (
+        // <Formik
+        //     initialValues={{
+        //       serial_number: data?.serial_number,
+        //       date_of_data_collection: data?.date_of_data_collection,
+        //       age: data?.age,
+        //       relationship: data?.relationship,
+        //       guardian_occupation: data?.guardian_occupation,
+        //       guardian_education: data?.guardian_education,
+        //       respondent_religion: data?.respondent_religion,
+        //       family_size: data?.family_size,
+        //       has_siblings: data?.has_siblings,
+        //       siblings_have_partners: data?.siblings_have_partners,
+        //       gets_pocket_money: data?.gets_pocket_money,
+        //       pocket_money_adequate: data?.pocket_money_adequate,
+        //     }}
+        //     validationSchema={socioValidationSchema} // Validation schema imported
+        //     onSubmit={(values) => {
+        //       console.log(values);
+        //     }}
+        // >
+      //   <Formik
+      //   initialValues={{
+      //     serial_number: generateSerialNumber(),
+      //     date_of_data_collection: getCurrentDateTime(),
+      //     age: data?.age,
+      //     relationship: data?.relationship,
+      //     guardian_occupation: data?.guardian_occupation,
+      //     guardian_education: data?.guardian_education,
+      //     respondent_religion: data?.respondent_religion,
+      //     family_size: data?.family_size,
+      //     has_siblings: data?.has_siblings,
+      //     siblings_have_partners: data?.siblings_have_partners,
+      //     gets_pocket_money:data?.gets_pocket_money,
+      //     pocket_money_adequate: data?.pocket_money_adequate,
+      //   }}
+      //   validationSchema={socioValidationSchema}
+      //   onSubmit={handleNext}
+      // >
+      
+
+      <Formik
+  initialValues={JSON.parse(localStorage.getItem("formdata")) || {
+    serial_number: generateSerialNumber(),
+    date_of_data_collection: getCurrentDateTime(),
+    age: data?.age || '',
+    relationship: data?.relationship || '',
+    guardian_occupation: data?.guardian_occupation || '',
+    guardian_education: data?.guardian_education || '',
+    respondent_religion: data?.respondent_religion || '',
+    family_size: data?.family_size || '',
+    has_siblings: data?.has_siblings || '',
+    siblings_have_partners: data?.siblings_have_partners || '',
+    gets_pocket_money: data?.gets_pocket_money || '',
+    pocket_money_adequate: data?.pocket_money_adequate || '',
+  }}
+  validationSchema={socioValidationSchema}
+  onSubmit={handleNext}
+>
+
+
+        {({validateForm , values, handleChange, setFieldValue }) => (
           <Box
           sx={{
             width: "82%",
@@ -167,6 +242,7 @@ const Socio = () => {
       padding: 2,
     }}
   >
+   
             <Form>
               {/* First Box: Serial Number and Date of Collection */}
               <Box
@@ -522,29 +598,33 @@ const Socio = () => {
         </div>
       )}
 
-      <Button
-        type="submit"
-        variant="contained"
-        sx={{
-          minWidth: 100,
-          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.8)",
-          backgroundColor: "#57707A",
-          "&:hover": { backgroundColor: "#3d525a" },
-        }}
-        onClick={handleNext}
-      >
-        NEXT
-      </Button>
+
+    <Button
+      type="button"
+      variant="contained"
+      sx={{
+        minWidth: 100,
+        boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.8)",
+        backgroundColor: "#57707A",
+        "&:hover": { backgroundColor: "#3d525a" },
+      }}
+      onClick={() => handleNext(validateForm)}
+    >
+      NEXT
+    </Button>
+
     </div>
 
 
             </Box>
 
             </Form>
+            
           </Box>
         </Box>
           )
     }
+   
 </Formik>
 );
 };

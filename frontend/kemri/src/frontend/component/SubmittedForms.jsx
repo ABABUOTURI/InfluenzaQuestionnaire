@@ -34,10 +34,10 @@ const SubmittedForm = () => {
             <TableHead>
               <TableRow>
                 <TableCell><b>Serial No</b></TableCell>
-                <TableCell><b>Staff No</b></TableCell>
+                {/* <TableCell><b>Staff No</b></TableCell> */}
                 <TableCell><b>Submission Time</b></TableCell>
-                <TableCell><b>Date of Collection</b></TableCell>
-                <TableCell><b>Status</b></TableCell>
+                {/* <TableCell><b>Date of Collection</b></TableCell> */}
+                {/* <TableCell><b>Status</b></TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>

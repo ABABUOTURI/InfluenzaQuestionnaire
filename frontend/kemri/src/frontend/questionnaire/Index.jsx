@@ -1,13 +1,10 @@
 
 import React, { 
-  // useContext, 
   useState, 
-  // useEffect 
 } from 'react';
 import { Formik, Form } from 'formik';
 import { 
   useNavigate, 
-  // useLocation 
 } from 'react-router-dom';
 import { FormGroup, FormControlLabel, Checkbox } from '@mui/material';
 import {
@@ -20,41 +17,30 @@ import {
  Select,
   Button,
   Grid,
-  //Snackbar,
-  //Alert,
-  //Typography,
 } from '@mui/material';
 import indexValidationSchema from '../validations/indexValidation';
 import { useFormContext } from "../../store/form";
-// import { submitForm } from '../../api//api3';
-
+//import { useFormikContext } from "formik";
 
 
 const Index = () => {
-  // const location = useLocation();
-  // const [showSuccess, setShowSuccess] = useState(false);
   const [popup, setPopup] = useState({ show: false, message: "", type: "" });
   const navigate = useNavigate();
   const context = useFormContext();
   const [tabValue] = useState(0);
-  // const { setForm } = useFormContext();
   const { data } = context || { data: {} };
 
   // Retrieve passed data from Socio.jsx
-  const receivedFormData = JSON.parse(localStorage.getItem("formdata"))
-  receivedFormData.age = +receivedFormData.age
-  console.log(receivedFormData)
-
-  // Function to generate a unique serial number
-  // const generateSerialNumber = () => `SN-${Date.now()}`;
+  const receivedFormData = JSON.parse(localStorage.getItem("formdata")) || {};
+  receivedFormData.age = +receivedFormData.age || "";
 
   // Function to get the current date & time in "YYYY-MM-DD HH:MM:SS" format
-  const getCurrentDateTime = () => new Date().toUTCString()
+  const getCurrentDateTime = () => new Date().toUTCString();
 
   // Initialize form data, merging received data from Socio.jsx
   const [formData, setFormData] = useState({
-    serial_number: receivedFormData.serial_number, // Auto-generate serial number
-    date_of_data_collection: getCurrentDateTime(), // Auto-fill date & time
+    serial_number: receivedFormData.serial_number || "",
+    date_of_data_collection: getCurrentDateTime(),
     age: receivedFormData.age || "",
     relationship: receivedFormData.relationship || "",
     guardian_occupation: receivedFormData.guardian_occupation || "",
@@ -66,17 +52,13 @@ const Index = () => {
     gets_pocket_money: receivedFormData.gets_pocket_money || "",
     pocket_money_adequate: receivedFormData.pocket_money_adequate || "",
     financial_support: "",
-    guardian_visits:  "",
+    guardian_visits: "",
     alternative_visitor: "",
     access_to_reproductive_health_info: "",
     information_adequate: "",
     educator_name: [],
     topic_name: [],
   });
-
-  // useEffect(() => {
-  //   console.log("Received form data from Socio.jsx:", receivedFormData);
-  // }, [receivedFormData]);
 
   // Handle input change for form fields
   const handleChange = (e) => {
@@ -87,78 +69,137 @@ const Index = () => {
     }));
   };
 
-  // Validate required fields
-  // const validateForm = () => {
-  //   const requiredFields = [
-  //     "serial_number",
-  //     "date_of_data_collection",
-  //     "age",
-  //     "relationship",
-  //     "guardian_occupation",
-  //     "guardian_education",
-  //     "respondent_religion",
-  //     "family_size",
-  //   ];
+  // ✅ Define `validateForm` function before passing it to `handleSubmit`
+  const validateForm = async () => {
+    let errors = {};
 
-  //   for (let field of requiredFields) {
-  //     if (!formData[field]) {
-  //       alert(`Error: ${field} is required`);
-  //       return false;
-  //     }
-  //   }
-  //   return true;
-  // };
+    if (!formData.age) errors.age = "Age is required";
+    if (!formData.relationship) errors.relationship = "Relationship is required";
+    if (!formData.guardian_occupation) errors.guardian_occupation = "Guardian occupation is required";
+    
+    return errors;
+  };
 
-
-  
-  // Submit form data to API
-  const API_URL = "http://localhost:8000/api/forms/"; // Updated endpoint
-
- 
-
+  // ✅ Properly structured `handleSubmit` function
   const handleSubmit = async () => {
-    if (!formData || Object.values(formData).some((value) => value === "" || value === null)) {
-      showPopup("Please fill in all required fields.", "error");
+    const errors = await validateForm();
+  
+    if (Object.keys(errors).length > 0) {
+      setPopup({ show: true, message: "Please fill in all required fields.", type: "error" });
+  
+      setTimeout(() => {
+        setPopup({ show: false, message: "", type: "" });
+      }, 3000);
+  
       return;
     }
-  
-    console.log("Submitting:", JSON.stringify(formData, null, 2));
-  
+    console.log("Sending form data:", JSON.stringify(formData, null, 2));
+
     try {
-      const response = await fetch(API_URL, {
+      // Send form data to backend API
+      const response = await fetch("http://localhost:8000/api/forms/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
         body: JSON.stringify(formData),
       });
   
-      const responseData = await response.json();
-      console.log("Response from server:", responseData);
-  
-      if (response.ok) {
-        showPopup("Form submitted successfully!", "success");
-  
-        // Hide success message after 3 seconds and navigate to /socio
-        setTimeout(() => {
-          navigate("/socio");
-        }, 3000); // Adjusted timeout to 3 seconds
-      } else {
-        showPopup(`Submission failed: ${responseData.message || JSON.stringify(responseData)}`, "error");
-
+      if (!response.ok) {
+        throw new Error("Failed to save data");
       }
+  
+      // Optionally, save form data locally
+      localStorage.setItem("formdata", JSON.stringify(formData));
+  
+      // Show success popup
+      setPopup({ show: true, message: "Form saved successfully! Redirecting...", type: "success" });
+  
+      // Clear the form after saving
+      setFormData({
+        serial_number: "",
+        date_of_data_collection: getCurrentDateTime(),
+        age: "",
+        relationship: "",
+        guardian_occupation: "",
+        guardian_education: "",
+        respondent_religion: "",
+        family_size: "",
+        has_siblings: "",
+        siblings_have_partners: "",
+        gets_pocket_money: "",
+        pocket_money_adequate: "",
+        financial_support: "",
+        guardian_visits: "",
+        alternative_visitor: "",
+        access_to_reproductive_health_info: "",
+        information_adequate: "",
+        educator_name: [],
+        topic_name: [],
+      });
+  
+      // Hide popup and navigate after 3 seconds
+      setTimeout(() => {
+        setPopup({ show: false, message: "", type: "" });
+        navigate("/socio");
+      }, 3000);
     } catch (error) {
-      console.error("Error submitting form:", error);
-      showPopup("An error occurred. Please try again.", "error");
+      console.error("Error saving form data:", error);
+  
+      // Show error popup
+      setPopup({ show: true, message: "An error occurred while saving data!", type: "error" });
+  
+      setTimeout(() => {
+        setPopup({ show: false, message: "", type: "" });
+      }, 3000);
     }
   };
   
-  const showPopup = (message, type) => {
-    setPopup({ show: true, message, type });
+
+
+
+  //   if (!formData || Object.values(formData).some((value) => value === "" || value === null)) {
+  //     showPopup("Please fill in all required fields.", "error");
+  //     return;
+  //   }
   
-    // Hide popup after 3 seconds
-    setTimeout(() => {
-      setPopup({ show: false, message: "", type: "" });
-    }, 3000);
-  };
+  //   console.log("Submitting:", JSON.stringify(formData, null, 2));
+  
+  //   try {
+  //     const response = await fetch(API_URL, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(formData),
+  //     });
+  
+  //     const responseData = await response.json();
+  //     console.log("Response from server:", responseData);
+  
+  //     if (response.ok) {
+  //       showPopup("Form submitted successfully!", "success");
+  
+  //       // Hide success message after 3 seconds and navigate to /socio
+  //       setTimeout(() => {
+  //         navigate("/socio");
+  //       }, 3000); 
+  //     } else {
+  //       showPopup(`Submission failed: ${responseData.message || JSON.stringify(responseData)}`, "error");
+
+  //     }
+  //   } catch (error) {
+  //     showPopup("An error occurred. Please try again.", "error");
+  //   }
+  // };
+  
+  // const showPopup = (message, type) => {
+  //   setPopup({ show: true, message, type });
+  
+  //   // Hide popup after 3 seconds
+  //   setTimeout(() => {
+  //     setPopup({ show: false, message: "", type: "" });
+  //   }, 3000);
+  // };
 
 
     return (
@@ -184,8 +225,8 @@ const Index = () => {
                sx={{
                  width: "82%",
                  maxWidth: "1100px",
-                 minWidth: "300px", // Prevents collapsing on small screens
-                 margin: { xs: "10px", sm: "15px auto" }, // Responsive margin
+                 minWidth: "300px", 
+                 margin: { xs: "10px", sm: "15px auto" },
                  padding: 3,
                  display: "flex",
                  flexDirection: "column",
@@ -193,12 +234,12 @@ const Index = () => {
                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
                  borderRadius: 2,
                  backgroundColor: "white",
-                 minHeight: "fit-content", // Adjusts height based on content
-                 flexGrow: 2, // Allows expansion if needed
-                 position: { xs: "sticky", md: "relative" }, // Sticky on small screens, normal on larger screens
-                 top: 0, // Keeps it at the top when scrolling
-                 overflow: { xs: "hidden", md: "visible" }, // Hides overflow on small screens, normal on large screens
-                 maxHeight: { xs: "80vh", md: "auto" }, // Restricts height on small screens
+                 minHeight: "fit-content", 
+                 flexGrow: 2, 
+                 position: { xs: "sticky", md: "relative" }, 
+                 top: 0, 
+                 overflow: { xs: "hidden", md: "visible" }, 
+                 maxHeight: { xs: "80vh", md: "auto" },
                }}
              >
         <Tabs
@@ -212,8 +253,8 @@ const Index = () => {
         </Tabs>
         <Box
             sx={{
-              overflowY: "auto", // Enables vertical scrolling inside
-              maxHeight: { xs: "calc(100vh - 50px)", md: "auto" }, // Limits scroll height
+              overflowY: "auto", 
+              maxHeight: { xs: "calc(100vh - 50px)", md: "auto" }, 
               width: "100%",
               padding: 2,
             }}
@@ -234,8 +275,7 @@ const Index = () => {
                                             onChange={(e) => {
                                               setFieldValue("financial_support", e.target.value);
                                               setFormData((prev) => ({...prev, financial_support: e.target.value }));
-                                              // form.setForm(data => ({...data, financial_support: e.target.value})) 
-                                              // setFieldValue('financial_support', e.target.value)
+                                
                                             }}
                                             label="Who else meets your financial needs?"
                                           >
@@ -253,9 +293,7 @@ const Index = () => {
                                                 onChange={(e) => {
                                                   setFieldValue("guardian_visits", e.target.value);
                                                   setFormData((prev) => ({...prev, guardian_visits: e.target.value }));
-                                              // setForm({ guardian_visits: e.target.value });
-                                                  // form.setForm(data => ({...data, guardian_visits: e.target.value})) 
-                                                  // setFieldValue('guardian_visits', e.target.value)
+                                            
                                                 }}
                                                
                                                 label="Does your guardian always visit you during visiting days?"
@@ -267,13 +305,13 @@ const Index = () => {
                         </Grid>
                         <Grid item xs={12} md={6}  >
                         <FormControl
-  fullWidth
-  sx={{
-    marginBottom: { xs: 1, sm: 2, md: 3 }, // Adjusts margin for different screens
-    marginTop: { xs: 2, sm: 3, md: 4 },
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.3)",
-  }}
->
+                          fullWidth
+                          sx={{
+                            marginBottom: { xs: 1, sm: 2, md: 3 }, 
+                            marginTop: { xs: 2, sm: 3, md: 4 },
+                            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.3)",
+                          }}
+                        >
 
                                               <InputLabel>If NO, who else visits you in school?</InputLabel>
                                               <Select
@@ -282,9 +320,7 @@ const Index = () => {
                                                 onChange={(e) => {
                                                   setFieldValue(" alternative_visitor", e.target.value);
                                                   setFormData((prev) => ({...prev, alternative_visitor: e.target.value }));
-                                              // setForm({  alternative_visitor: e.target.value });
-                                                  // form.setForm(data => ({...data, alternative_visitor: e.target.value})) 
-                                                  // setFieldValue('alternative_visitor', e.target.value)
+                                              
                                                 }}
                                                
                                                 label="If NO, who else visits you in school?"
@@ -298,6 +334,8 @@ const Index = () => {
                             </FormControl>
                             </Grid>
                      </Grid>
+
+
                      <Grid item xs={12} md={6} >
                         <Box sx={{ marginBottom: 2 }}>
                           <strong>Health Information</strong>
@@ -307,7 +345,7 @@ const Index = () => {
                         <FormControl
       fullWidth
       sx={{
-        marginBottom: { xs: 2, md: 0 }, // Space for small screens but none for large screens
+        marginBottom: { xs: 2, md: 0 },
         boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.3)",
       }}
     >
@@ -316,11 +354,9 @@ const Index = () => {
                                 name="access_to_reproductive_health_info"
                                 value={values.access_to_reproductive_health_info}
                                 onChange={(e) => {
-                                  setFieldValue(" access_to_reproductive_health_info", e.target.value);
+                                  setFieldValue("access_to_reproductive_health_info", e.target.value);
                                   setFormData((prev) => ({...prev, access_to_reproductive_health_info: e.target.value }));
-                                  // setForm({  access_to_reproductive_health_info: e.target.value });
-                                  // form.setForm(data => ({...data, access_to_reproductive_health_info: e.target.value})) 
-                                  // setFieldValue('access_to_reproductive_health_info', e.target.value)
+                                 
                                 }}
                                
                                 label="Do you have any access to reproductive health information?"
@@ -330,7 +366,7 @@ const Index = () => {
                               </Select>
                         </FormControl>
                         </Grid>
-
+                        {values.access_to_reproductive_health_info === "YES" && (
 <Grid item xs={12} md={6}>
   <FormControl
     fullWidth
@@ -344,11 +380,9 @@ const Index = () => {
                                 name="information_adequate"
                                 value={values.information_adequate}
                                 onChange={(e) => {
-                                  setFieldValue(" information_adequate", e.target.value);
+                                  setFieldValue("information_adequate", e.target.value);
                                   setFormData((prev) => ({...prev, information_adequate: e.target.value }));
-                                  // setForm({   information_adequate: e.target.value });
-                                  // form.setForm(data => ({...data, information_adequate: e.target.value})) 
-                                  // setFieldValue('information_adequate', e.target.value)
+                      
                                 }}
                                
                                 label="Is the information adequate?"
@@ -358,197 +392,90 @@ const Index = () => {
                               </Select>
                         </FormControl>
                         </Grid>
+                        )}
                         </Grid>
-                        <Grid container spacing={2} sx={{ flexWrap: { xs: "wrap", md: "nowrap" } }}>
-  <Grid item xs={12} md={6}>
-                            <Box sx={{ marginTop: 2 }}>
-                                Who educates you about reproductive health?
-                               </Box> 
-                               <FormGroup sx={{
-                               boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)', // Apply shadow
-                               borderRadius: '8px', // Rounded corners
-                               border: '1px solid #ccc', // Light border color
-                               padding: '16px', // Optional padding to give space inside
-                               marginBottom: 2 // Optional margin
-                               }}>
-                                <FormControlLabel
-                                        control={
-                                          <Checkbox
-                                            checked={values.educator_name.includes('Teacher')}
-                                            onChange={(e) => {
-                                              setFieldValue("educator_name",  e.target.checked ? [...values.educator_name, 'Teacher'] : values.educator_name.filter(item => item !== 'Teacher'));
-                                              setFormData((prev) => ({...prev,educator_name: e.target.value }));
-                                              // setForm({  educator_name: e.target.value });
-                                              // form.setForm(data => ({...data, educator_name: e.target.value})) 
-                                              // setFieldValue('educator_name', e.target.checked ? [...values.educator_name, 'Teacher'] : values.educator_name.filter(item => item !== 'Teacher'))
-                                            }
+                        {values.access_to_reproductive_health_info === "YES" && (
+                          
+                          <Grid container spacing={2} sx={{ flexWrap: { xs: "wrap", md: "nowrap" } }}>
+                          <Grid item xs={12} md={6}>
+                              <Box sx={{ marginTop: 2 }}>
+                                  Who educates you about reproductive health?
+                              </Box> 
+                              <FormGroup sx={{
+                                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)', 
+                                  borderRadius: '8px', 
+                                  border: '1px solid #ccc', 
+                                  padding: '16px', 
+                                  marginBottom: 2
+                              }}>
+                                  {['Teacher', 'Parents', 'Health worker', 'Friends', 'Radio/Magazines/TV'].map((educator) => (
+                                      <FormControlLabel
+                                          key={educator}
+                                          control={
+                                              <Checkbox
+                                                  checked={values.educator_name.includes(educator)}
+                                                  onChange={(e) => {
+                                                      setFieldValue(
+                                                          "educator_name", 
+                                                          e.target.checked 
+                                                              ? [...values.educator_name, educator] 
+                                                              : values.educator_name.filter(item => item !== educator)
+                                                      );
+                                                  }}
+                                                  value={educator}
+                                              />
                                           }
-                                            value="Teacher"
-                                          />
-                                        }
-                                        label="Teacher"
+                                          label={educator}
                                       />
-                                      <FormControlLabel
-                                        control={
-                                          <Checkbox
-                                            checked={values.educator_name.includes('Parents')}
-                                            onChange={(e) => {
-                                              setFieldValue("educator_name",  e.target.checked ? [...values.educator_name, 'Parents'] : values.educator_name.filter(item => item !== 'Parents'));
-                                              setFormData((prev) => ({...prev,educator_name: e.target.value }));
-                                              // form.setForm(data => ({...data, educator_name: e.target.value})) 
-                                              // setFieldValue('educator_name', e.target.checked ? [...values.educator_name, 'Parents'] : values.educator_name.filter(item => item !== 'Parents'))
-                                            }
-                                          }
-                                            value="Parents"
-                                          />
-                                        }
-                                        label="Parents"
-                                      />
-                                      <FormControlLabel
-                                        control={
-                                          <Checkbox
-                                            checked={values.educator_name.includes('Health worker')}
-                                            onChange={(e) => {
-                                              setFieldValue("educator_name",  e.target.checked ? [...values.educator_name, 'Health worker'] : values.educator_name.filter(item => item !== 'Health worker'));
-                                              setFormData((prev) => ({...prev,educator_name: e.target.value }));
-                                              // form.setForm(data => ({...data, educator_name: e.target.value})) 
-                                              // setFieldValue('educator_name', e.target.checked ? [...values.educator_name, 'Health worker'] : values.educator_name.filter(item => item !== 'Health worker'))
-                                            }
-                                          }
-                                            value="Health worker"
-                                          />
-                                        }
-                                        label="Health worker"
-                                      />
-                                      <FormControlLabel
-                                        control={
-                                          <Checkbox
-                                            checked={values.educator_name.includes('Friends')}
-                                            onChange={(e) => {
-                                              setFieldValue("educator_name",  e.target.checked ? [...values.educator_name, 'Friends'] : values.educator_name.filter(item => item !== 'Friends'));
-                                              setFormData((prev) => ({...prev,educator_name: e.target.value }));
-                                              // form.setForm(data => ({...data, educator_name: e.target.value})) 
-                                              // setFieldValue('educator_name', e.target.checked ? [...values.educator_name, 'Friends'] : values.educator_name.filter(item => item !== 'Friends'))
-                                            }
-                                          }
-                                            value="Friends"
-                                          />
-                                        }
-                                        label="Friends"
-                                      />
-                                      <FormControlLabel
-                                        control={
-                                          <Checkbox
-                                            checked={values.educator_name.includes('Radio/Magazines/TV')}
-                                            onChange={(e) => {
-                                              setFieldValue("educator_name",   e.target.checked ? [...values.educator_name, 'Radio/Magazine/TV'] : values.educator_name.filter(item => item !== 'Radio/Magazine/TV'));
-                                              setFormData((prev) => ({...prev,educator_name: e.target.value }));
-                                              // form.setForm(data => ({...data, educator_name: e.target.value})) 
-                                              // setFieldValue('educator_name', e.target.checked ? [...values.educator_name, 'Radio/Magazine/TV'] : values.educator_name.filter(item => item !== 'Radio/Magazine/TV'))
-                                            }
-                                          }
-                                            value="Radio/Magazines/TV"
-                                          />
-                                        }
-                                        label="Radio/Magazines/TV"
-                                      />
-                               </FormGroup>
-                               </Grid>
-                               <Grid item xs={12} md={6}>
-                                <Box sx={{ marginTop: 2 }}>
-                                    What topics have you learned about reproductive health?
-                                    </Box>
-                                    <FormGroup sx={{
-                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)', // Apply shadow
-                                borderRadius: '8px', // Rounded corners
-                                border: '1px solid #ccc', // Light border color
-                                padding: '16px', // Optional padding to give space inside
-                                marginBottom: 2 // Optional margin
-                                }}>
-                                
-                                      <FormControlLabel
-                                        control={
-                                          <Checkbox
-                                            checked={values.topic_name.includes('Sexuality')}
-                                            onChange={(e) => {
-                                              setFieldValue("topic_name", e.target.checked ? [...values.topic_name, 'Sexuality'] : values.topic_name.filter(item => item !== 'Sexuality'));
-                                              setFormData((prev) => ({...prev,topic_name: e.target.value }));
-                                              // form.setForm(data => ({...data, topic_name: e.target.value})) 
-                                              // setFieldValue('topic_name', e.target.checked ? [...values.topic_name, 'Sexuality'] : values.topic_name.filter(item => item !== 'Sexuality'))
-                                            }
-                                            }
-                                            value="Sexuality"
-                                          />
-                                        }
-                                        label="Sexuality"
-                                      />
-                                      <FormControlLabel
-                                        control={
-                                          <Checkbox
-                                            checked={values.topic_name.includes('Abstinence')}
-                                            onChange={(e) => {
-                                              setFieldValue("topic_name",e.target.checked ? [...values.topic_name, 'Abstinence'] : values.topic_name.filter(item => item !== 'Abstinence'));
-                                              setFormData((prev) => ({...prev,topic_name: e.target.value }));
-                                              // form.setForm(data => ({...data, topic_name: e.target.value})) 
-                                              // setFieldValue('topic_name', e.target.checked ? [...values.topic_name, 'Abstinence'] : values.topic_name.filter(item => item !== 'Abstinence'))
-                                            }
-                                            }
-                                            value="Abstinence"
-                                          />
-                                        }
-                                        label="Abstinence"
-                                      />
-                                      <FormControlLabel
-                                        control={
-                                          <Checkbox
-                                            checked={values.topic_name.includes('Condoms')}
-                                            onChange={(e) => {
-                                              setFieldValue("topic_name", e.target.checked ? [...values.topic_name, 'Condoms'] : values.topic_name.filter(item => item !== 'Condoms'));
-                                              setFormData((prev) => ({...prev,topic_name: e.target.value }));
-                                              // form.setForm(data => ({...data, topic_name: e.target.value})) 
-                                              // setFieldValue('topic_name', e.target.checked ? [...values.topic_name, 'Condoms'] : values.topic_name.filter(item => item !== 'Condoms'))
-                                            }
-                                            }
-                                            value="Condoms"
-                                          />
-                                        }
-                                        label="Condoms"
-                                      />
-                                      <FormControlLabel
-                                        control={
-                                          <Checkbox
-                                            checked={values.topic_name.includes('STI/HIV')}
-                                            onChange={(e) => {
-                                              setFieldValue("topic_name", e.target.checked ? [...values.topic_name, 'STI/HIV'] : values.topic_name.filter(item => item !== 'STI/HIV'));
-                                              setFormData((prev) => ({...prev,topic_name: e.target.value }));
-                                              // form.setForm(data => ({...data, topic_name: e.target.value})) 
-                                              // setFieldValue('topic_name', e.target.checked ? [...values.topic_name, 'STI/HIV'] : values.topic_name.filter(item => item !== 'STI/HIV'))
-                                            }
-                                            }
-                                            value="STI/HIV"
-                                          />
-                                        }
-                                        label="STI/HIV"
-                                      />
-                                      <FormControlLabel
-                                        control={
-                                          <Checkbox
-                                            checked={values.topic_name.includes('Relationships')}
-                                            onChange={(e) => {
-                                              setFieldValue("topic_name", e.target.checked ? [...values.topic_name, 'Relationship'] : values.topic_name.filter(item => item !== 'Relationship'));
-                                              setFormData((prev) => ({...prev,topic_name: e.target.value }));
-                                              // form.setForm(data => ({...data, topic_name: e.target.value})) 
-                                              // setFieldValue('topic_name', e.target.checked ? [...values.topic_name, 'Relationship'] : values.topic_name.filter(item => item !== 'Relationship'))
-                                            }
-                                            }
-                                            value="Relationships"
-                                          />
-                                        }
-                                        label="Relationships"
-                                      />
-                                    </FormGroup>
-                                </Grid>
+                                  ))}
+                              </FormGroup>
+                          </Grid>
+                     
+                      
+                                <Grid item xs={12} md={6}>
+  <Box sx={{ marginTop: 2 }}>
+    What topics have you learned about reproductive health?
+  </Box>
+  <FormGroup
+    sx={{
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+      borderRadius: "8px",
+      border: "1px solid #ccc",
+      padding: "16px",
+      marginBottom: 2,
+    }}
+  >
+    {[
+      "Sexuality",
+      "Abstinence",
+      "Condoms",
+      "HIV/STI",
+      "Relationships",
+    ].map((topic) => (
+      <FormControlLabel
+        key={topic}
+        control={
+          <Checkbox
+            checked={values.topic_name.includes(topic)}
+            onChange={(e) => {
+              setFieldValue(
+                "topic_name",
+                e.target.checked
+                  ? [...values.topic_name, topic]
+                  : values.topic_name.filter((item) => item !== topic)
+              );
+            }}
+            value={topic}
+          />
+        }
+        label={topic}
+      />
+    ))}
+  </FormGroup>
+</Grid>
+
                         </Grid>
+                        )}
                      </Grid>
                 {/* Back and Submit Buttons */}
     <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
@@ -609,7 +536,8 @@ const Index = () => {
           boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.8)",
           backgroundColor: "#57707A",
         }}
-        onClick={handleSubmit} 
+        // onClick={handleSubmit} 
+        onClick={() => handleSubmit(validateForm)}
       >
         SUBMIT
       </Button> 

@@ -1,227 +1,4 @@
-# # import json
-# # from django.http import JsonResponse
-# # from django.http import HttpResponse
-# # from django.contrib.auth import get_user_model
-# # from rest_framework import viewsets, status
-# # from rest_framework.permissions import AllowAny, IsAuthenticated
-# # from rest_framework.response import Response
-# # # from .models import Respondent, EducatorName, Topic
-# # # from .serializers import UserSerializer, RespondentSerializer, EducatorNameSerializer, TopicSerializer
-# # from rest_framework import status
-# # from rest_framework.decorators import api_view
-# # from django.contrib.auth import authenticate
 
-# # from rest_framework.views import APIView
-# # from rest_framework.response import Response
-# # from rest_framework import status
-# # from .models import Respondent, Topic, Educator
-# # from .serializers import UserSerializer, RespondentSerializer, TopicSerializer, EducatorSerializer
-
-# # # Home View (Optional)
-# # def home(request):
-# #     return HttpResponse("Welcome to the home page!")
-
-# # @api_view(['POST'])
-# # def login_view(request):
-# #     staff_no = request.data.get('staffNo')
-# #     password = request.data.get('password')
-
-# #     if not staff_no or not password:
-# #         return Response({"error": "Staff number and password are required"}, status=status.HTTP_400_BAD_REQUEST)
-
-# #     user = authenticate(username=staff_no, password=password)
-
-# #     if user:
-# #         return Response({"message": "Login successful"}, status=status.HTTP_200_OK)
-# #     else:
-# #         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
-
-# # # API ViewSets
-# # class UserViewSet(viewsets.ModelViewSet):
-# #     """
-# #     Handles user creation with password hashing.
-# #     """
-# #     queryset = get_user_model().objects.all()
-# #     serializer_class = UserSerializer
-# #     permission_classes = [AllowAny]  # ✅ Allow anyone to create an account
-
-# #     def create(self, request, *args, **kwargs):
-# #         """
-# #         Overriding the create method to handle user creation securely.
-# #         """
-# #         serializer = self.get_serializer(data=request.data)
-# #         if serializer.is_valid():
-# #             user = serializer.save()
-# #             user.set_password(serializer.validated_data['password'])  # Hash password
-# #             user.save()
-# #             return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
-# #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# # class SubmitFormView(APIView):
-# #     def post(self, request, *args, **kwargs):
-# #         print("Received Data:", json.dumps(request.data, indent=4))  # ✅ Log incoming data
-
-# #         # Extract data from request
-# #         respondent_data = {
-# #             "id": request.data.get("serial_number", ""),
-# #             # "date_of_data_collection": request.data.get("date_of_data_collection", ""),
-# #             "age": request.data.get("age", ""),
-# #             "relationship": request.data.get("relationship", ""),
-# #             "guardian_occupation": request.data.get("guardian_occupation", ""),
-# #             "guardian_education": request.data.get("guardian_education", ""),
-# #             "respondent_religion": request.data.get("respondent_religion", ""),
-# #             "family_size": request.data.get("family_size", ""),
-# #             "has_siblings": request.data.get("has_siblings", ""),
-# #             "siblings_have_partners": request.data.get("siblings_have_partners", ""),
-# #             "gets_pocket_money": request.data.get("gets_pocket_money", ""),
-# #             "pocket_money_adequate": request.data.get("pocket_money_adequate", ""),
-# #             "financial_support": request.data.get("financial_support", ""),
-# #             "guardian_visits": request.data.get("guardian_visits", ""),
-# #             "alternative_visitor": request.data.get("alternative_visitor", ""),
-# #             "access_to_reproductive_health_info": request.data.get("access_to_reproductive_health_info", ""),
-# #             "information_adequate": request.data.get("information_adequate", "")
-# #         }
-        
-# #         topic_data = request.data.get("topic_name", [])
-# #         educator_data = request.data.get("educator_name", [])
-
-# #         # Validate data
-# #         if not respondent_data["id"]:
-# #             return Response({"error": "Serial number is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-# #         # Save respondent
-# #         respondent_serializer = RespondentSerializer(data=respondent_data)
-# #         if respondent_serializer.is_valid():
-# #             respondent = respondent_serializer.save()
-
-# #             # Save topics
-# #             for topic in topic_data:
-# #                 topic_serializer = TopicSerializer(data={"topic_name": topic, "respondent": respondent.id})
-# #                 if topic_serializer.is_valid():
-# #                     topic_serializer.save()
-
-# #             # Save educators
-# #             for educator in educator_data:
-# #                 educator_serializer = EducatorSerializer(data={"educator_name": educator, "respondent": respondent.id})
-# #                 if educator_serializer.is_valid():
-# #                     educator_serializer.save()
-
-# #             return Response({'message': 'Form submitted successfully'}, status=status.HTTP_201_CREATED)
-# #         else:
-# #             return Response(respondent_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-# # # class SubmitFormView(APIView):
-# # #     def post(self, request, *args, **kwargs):
-# # #         print("Received Data:", json.dumps(request.data, indent=4))  # ✅ Log incoming data
-
-# # #         respondent_data = request.data.get('respondent')
-# # #         topic_data = request.data.get('topic', [])
-# # #         educator_data = request.data.get('educator_name', [])
-
-# # #         if not respondent_data or not topic_data or not educator_data:
-# # #             return Response({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
-# # #     # def post(self, request, *args, **kwargs):
-# # #     #     print("Received Data:", json.dumps(request.data, indent=4))  # Log full request data
-
-# # #     #     respondent_data = request.data.get('respondent')
-# # #     #     topic_data = request.data.get('topic', [])
-# # #     #     educator_data = request.data.get('educator_name', [])
-
-# # #     #     if not respondent_data or not topic_data or not educator_data:
-# # #     #         return Response({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
-
-# # #         respondent_serializer = RespondentSerializer(data=respondent_data)
-# # #         if respondent_serializer.is_valid():
-# # #             respondent = respondent_serializer.save()
-
-# # #             topic_errors = []
-# # #             for topic in topic_data:
-# # #                 topic_serializer = TopicSerializer(data={'topic_name': topic, 'respondent': respondent.id})
-# # #                 if topic_serializer.is_valid():
-# # #                     topic_serializer.save()
-# # #                 else:
-# # #                     topic_errors.append(topic_serializer.errors)
-
-# # #             educator_errors = []
-# # #             for educator in educator_data:
-# # #                 educator_serializer = EducatorSerializer(data={'educator_name': educator, 'respondent': respondent.id})
-# # #                 if educator_serializer.is_valid():
-# # #                     educator_serializer.save()
-# # #                 else:
-# # #                     educator_errors.append(educator_serializer.errors)
-
-# # #             if topic_errors or educator_errors:
-# # #                 return Response({'topic_errors': topic_errors, 'educator_errors': educator_errors},
-# # #                                 status=status.HTTP_400_BAD_REQUEST)
-
-# # #             return Response({'message': 'Form submitted successfully'}, status=status.HTTP_201_CREATED)
-# # #         else:
-# # #             print("Validation Errors:", respondent_serializer.errors)  # Log validation errors
-# # #             return Response(respondent_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# # # # class RespondentViewSet(viewsets.ModelViewSet):
-# # #     """
-# # #     Handles the creation and retrieval of Respondent data.
-# # #     """
-# # #     queryset = Respondent.objects.all()
-# # #     serializer_class = RespondentSerializer
-# # #     permission_classes = [IsAuthenticated]
-
-# # # class EducatorNameViewSet(viewsets.ModelViewSet):
-# # #     """
-# # #     Handles the creation and retrieval of Educator data.
-# # #     """
-# # #     queryset = EducatorName.objects.all()
-# # #     serializer_class = EducatorNameSerializer
-# # #     permission_classes = [IsAuthenticated]
-
-# # # class TopicViewSet(viewsets.ModelViewSet):
-# # #     """
-# # #     Handles the creation and retrieval of Topics.
-# # #     """
-# # #     queryset = Topic.objects.all()
-# # #     serializer_class = TopicSerializer
-# # #     permission_classes = [IsAuthenticated]
-
-# from rest_framework import generics, permissions
-# from rest_framework.response import Response
-# from rest_framework.views import APIView
-# from django.contrib.auth.hashers import check_password
-# from .models import User, SubmittedForm
-# from .serializers import UserSerializer, SubmittedFormSerializer
-
-# # User Registration API
-# class UserRegisterView(generics.CreateAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-#     permission_classes = [permissions.AllowAny]
-
-# # User Login API
-# class UserLoginView(APIView):
-#     permission_classes = [permissions.AllowAny]
-
-#     def post(self, request):
-#         email = request.data.get('email')
-#         password = request.data.get('password')
-#         user = User.objects.filter(email=email).first()
-
-#         if user and check_password(password, user.password):
-#             return Response({'message': 'Login successful', 'user_id': user.id})
-#         return Response({'error': 'Invalid credentials'}, status=400)
-
-# # List and Create Form Submissions
-# class SubmittedFormListCreateView(generics.ListCreateAPIView):
-#     queryset = SubmittedForm.objects.all()
-#     serializer_class = SubmittedFormSerializer
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def perform_create(self, serializer):
-#         serializer.save(user=self.request.user)
-
-# # Retrieve, Update, and Delete Form Submissions
-# class SubmittedFormDetailView(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = SubmittedForm.objects.all()
-#     serializer_class = SubmittedFormSerializer
-#     permission_classes = [permissions.IsAuthenticated]
 
 from django.contrib.auth import authenticate
 from rest_framework import generics, status
@@ -234,7 +11,9 @@ from django.contrib.auth.hashers import check_password
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.db.models import Count
 from .models import User
+from django.db import models
 
 
 
@@ -295,3 +74,179 @@ class SubmittedFormDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = SubmittedForm.objects.all()
     serializer_class = SubmittedFormSerializer
 
+
+
+class AgeDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('age').annotate(count=Count('age')).order_by('age')
+        return JsonResponse(list(data), safe=False)
+    
+def get_age_distribution(request):
+    data = SubmittedForm.objects.values('age').annotate(count=Count('age')).order_by('age')
+    return JsonResponse(list(data), safe=False)
+
+
+class EducationDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('guardian_education').annotate(count=Count('guardian_education')).order_by('guardian_education')
+        return JsonResponse(list(data), safe=False)
+    
+def get_education_distribution(request):
+    data = SubmittedForm.objects.values('guardian_education').annotate(count=Count('guardian_education')).order_by('guardian_education')
+    return JsonResponse(list(data), safe=False)
+
+
+class ReligionDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('respondent_religion').annotate(count=Count('respondent_religion')).order_by('respondent_religion')
+        return JsonResponse(list(data), safe=False)
+    
+def get_religion_distribution(request):
+    data = SubmittedForm.objects.values('respondent_religion').annotate(count=Count('respondent_religion')).order_by('respondent_religion')
+    return JsonResponse(list(data), safe=False)
+
+class FamilyDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('family_size').annotate(count=Count('family_size')).order_by('family_size')
+        return JsonResponse(list(data), safe=False)
+    
+def get_family_distribution(request):
+    data = SubmittedForm.objects.values('family_size').annotate(count=Count('family_size')).order_by('family_size')
+    return JsonResponse(list(data), safe=False)
+
+class FinancialDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('financial_support').annotate(count=Count('financial_support')).order_by('financial_support')
+        return JsonResponse(list(data), safe=False)
+    
+def get_financial_distribution(request):
+    data = SubmittedForm.objects.values('financial_support').annotate(count=Count('financial_support')).order_by('financial_support')
+    return JsonResponse(list(data), safe=False)
+
+class VisitorDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('alternative_visitor').annotate(count=Count('alternative_visitor')).order_by('alternative_visitor')
+        return JsonResponse(list(data), safe=False)
+    
+def get_visitor_distribution(request):
+    data = SubmittedForm.objects.values('alternative_visitor').annotate(count=Count('alternative_visitor')).order_by('alternative_visitor')
+    return JsonResponse(list(data), safe=False)
+
+class EducatorDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('educator_name').annotate(count=Count('educator_name')).order_by('educator_name')
+        return JsonResponse(list(data), safe=False)
+    
+def get_educator_distribution(request):
+    data = SubmittedForm.objects.values('educator_name').annotate(count=Count('educator_name')).order_by('educator_name')
+    return JsonResponse(list(data), safe=False)
+
+class TopicDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('topic_name').annotate(count=Count('topic_name')).order_by('topic_name')
+        return JsonResponse(list(data), safe=False)
+    
+def get_topic_distribution(request):
+    data = SubmittedForm.objects.values('topic_name').annotate(count=Count('topic_name')).order_by('topic_name')
+    return JsonResponse(list(data), safe=False)
+
+
+
+
+class RelationshipDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('relationship').annotate(count=Count('relationship')).order_by('relationship')
+        return JsonResponse(list(data), safe=False)
+    
+def get_relationship_distribution(request):
+    data = SubmittedForm.objects.values('relationship').annotate(count=Count('relationship')).order_by('relationship')
+    return JsonResponse(list(data), safe=False)
+
+class OccupationDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('guardian_occupation').annotate(count=Count('guardian_occupation')).order_by('guardian_occupation')
+        return JsonResponse(list(data), safe=False)
+    
+def get_occupation_distribution(request):
+    data = SubmittedForm.objects.values('guardian_occupation').annotate(count=Count('guardian_occupation')).order_by('guardian_occupation')
+    return JsonResponse(list(data), safe=False)
+
+class SiblingsDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('has_siblings').annotate(count=Count('has_siblings')).order_by('has_siblings')
+        return JsonResponse(list(data), safe=False)
+    
+def get_siblings_distribution(request):
+    data = SubmittedForm.objects.values('has_siblings').annotate(count=Count('has_siblings')).order_by('has_siblings')
+    return JsonResponse(list(data), safe=False)
+
+class PartnersDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('siblings_have_partners').annotate(count=Count('siblings_have_partners')).order_by('siblings_have_partners')
+        return JsonResponse(list(data), safe=False)
+    
+def get_partners_distribution(request):
+    data = SubmittedForm.objects.values('siblings_have_partners').annotate(count=Count('siblings_have_partners')).order_by('siblings_have_partners')
+    return JsonResponse(list(data), safe=False)
+
+class PocketmoneyDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('gets_pocket_money').annotate(count=Count('gets_pocket_money')).order_by('gets_pocket_money')
+        return JsonResponse(list(data), safe=False)
+    
+def get_pocketmoney_distribution(request):
+    data = SubmittedForm.objects.values('gets_pocket_money').annotate(count=Count('gets_pocket_money')).order_by('gets_pocket_money')
+    return JsonResponse(list(data), safe=False)
+
+class MoneyadequateDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('pocket_money_adequate').annotate(count=Count('pocket_money_adequate')).order_by('pocket_money_adequate')
+        return JsonResponse(list(data), safe=False)
+    
+def get_moneyadequate_distribution(request):
+    data = SubmittedForm.objects.values('pocket_money_adequate').annotate(count=Count('pocket_money_adequate')).order_by('pocket_money_adequate')
+    return JsonResponse(list(data), safe=False)
+
+class GuardianvisitsDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('guardian_visits').annotate(count=Count('guardian_visits')).order_by('guardian_visits')
+        return JsonResponse(list(data), safe=False)
+    
+def get_guardianvisits_distribution(request):
+    data = SubmittedForm.objects.values('guardian_visits').annotate(count=Count('guardian_visits')).order_by('guardian_visits')
+    return JsonResponse(list(data), safe=False)
+
+class AccessDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('access_to_reproductive_health_info').annotate(count=Count('access_to_reproductive_health_info')).order_by('access_to_reproductive_health_info')
+        return JsonResponse(list(data), safe=False)
+    
+def get_access_distribution(request):
+    data = SubmittedForm.objects.values('access_to_reproductive_health_info').annotate(count=Count('access_to_reproductive_health_info')).order_by('access_to_reproductive_health_info')
+    return JsonResponse(list(data), safe=False)
+
+class InfoDistributionView(APIView):
+    def get(self, request):
+        # Count the occurrences of each age
+        data = SubmittedForm.objects.values('information_adequate').annotate(count=Count('information_adequate')).order_by('information_adequate')
+        return JsonResponse(list(data), safe=False)
+    
+def get_info_distribution(request):
+    data = SubmittedForm.objects.values('information_adequate').annotate(count=Count('information_adequate')).order_by('information_adequate')
+    return JsonResponse(list(data), safe=False)

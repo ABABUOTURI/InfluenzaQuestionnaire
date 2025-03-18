@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Card, CardContent, Grid } from "@mui/material";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
@@ -12,111 +13,124 @@ const submissionsData = [
   { date: "2024-07-07", submissions: 25 },
 ];
 
-const ageDistribution = [
-  { age: "15", count: 5 },
-  { age: "16", count: 15 },
-  { age: "17", count: 8 },
-  { age: "18", count: 12 },
-  { age: "19", count: 10 },
-];
 
-const relationshipData = [
-  { type: "Father and Mother", count: 25 },
-  { type: "Mother only", count: 15 },
-  { type: "Father only", count: 10 },
-  { type: "Relative", count: 5 },
-];
 
-const guardianOccupation = [
-  { name: "Farm Worker", value: 10 },
-  { name: "Self Employed", value: 20 },
-  { name: "Employed by someone", value: 15 },
-  { name: "Professional", value: 8 },
-  { name: "Other", value: 5 },
-];
+  const COLORS = ["#FF5733", "#33FF57", "#3357FF", "#FF33A8", "#FFD700", "#A833FF", "#FF8C33", "#00C49F", "#FF4500", "#0088FE"];
 
-const educationData = [
-  { level: "None", count: 5 },
-  { level: "Primary", count: 15 },
-  { level: "Secondary", count: 20 },
-  { level: "Tertiary", count: 12 },
-];
+  const Analytics = () => {
+    //barchart
+    const [ageDistribution, setAgeDistribution] = useState([]);
+    const [educationData, setEducationData] = useState([]);
+    const [religionData, setReligionData] = useState([]);
+    const [familySizeData, setFamilyData] = useState([]);
+    const [alternativeVisitorData, setVisitorData] = useState([]);
+    const [financialSupportData, setFinancialData] = useState([]);
+    const [educatorData, setEducatorData] = useState([]);
+    const [topicData, setTopicData] = useState([]);
 
-const religionData = [
-    { level: "Catholic", count: 5 },
-    { level: "Protestant", count: 15 },
-    { level: "Muslim", count: 20 },
-    { level: "SDA", count: 12 },
-    { level: "None", count: 12 },
-  ];
-  const familySizeData = [
-    { size: "1-5", count: 10 },
-    { size: "6-10", count: 20 },
-    { size: "11-15", count: 15 },
-    { size: "16-20", count: 8 },
-    { size: "21-30", count: 5 },
-    { size: "31-50", count: 2 },
-];
-const siblingsData = [
-    { option: "Yes", count: 30 }, 
-    { option: "No", count: 10 }, 
-];
-const siblingspartnerData = [
-    { option: "Yes", count: 60 }, 
-    { option: "No", count: 10 }, 
-];
-const getspocketmoneyData = [
-    { option: "Yes", count: 30 }, 
-    { option: "No", count: 80 }, 
-];
-const pocketmoneyadequateData = [
-    { option: "Yes", count: 40 }, 
-    { option: "No", count: 60 }, 
-];
-const financialsupportData = [
-    { level: "Relative", count: 5 },
-    { level: "Boyfriend", count: 15 },
-    { level: "Grandparents", count: 20 },
-    { level: "Other friends", count: 12 },
-   
-  ];
-  const guardianvisitData = [
-    { option: "Yes", count: 40 }, 
-    { option: "No", count: 20 }, 
-];
-const alternativevisitorData = [
-    { level: "Boyfriend", count: 15 },
-    { level: "'Relatives", count: 5 },
-    { level: "Brothers/Sisters", count: 20 },
-    { level: "Man friend", count: 12 },
-    { level: "None", count: 12 },
-   
-  ];
-const accessinfoData = [
-    { option: "Yes", count: 460 }, 
-    { option: "No", count: 60 }, 
-];
-const informationadequateData = [
-    { option: "Yes", count: 40 }, 
-    { option: "No", count: 610 }, 
-];
-const educatorData = [
-    { level: "Teacher", count: 5 },
-    { level: "Parents", count: 15 },
-    { level: "Health worker", count: 20 },
-    { level: "Friends", count: 12 },
-    { level: "Radio/Magazine/TV", count: 12 },
-  ];
-  const topicData = [
-    { level: "Sexuality", count: 5 },
-    { level: "Abstinence", count: 15 },
-    { level: "Condoms", count: 20 },
-    { level: "HIV/STI", count: 12 },
-    { level: "Relationships", count: 12 },
-  ];
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+    //pie chart
+    const [relationshipData, setRelationshipData] = useState([]);
+    const [occupationData, setOccupationData] = useState([]);
+    const [siblingsData, setSiblingsData] = useState([]);
+    const [siblingspartnerData, setSiblingspartnerData] = useState([]);
+    const [pocketmoneyData, setPocketmoneyData] = useState([]);
+    const [pocketmoneyadequateData, setPocketadequateData] = useState([]);
+    const [guardianvisitData, setVisitData] = useState([]);
+    const [accessData, setAccessData] = useState([]);
+    const [infoadequateData, setInfoData] = useState([]);
+  
+    // Function to group family sizes into bins
+    const groupFamilySize = (data) => {
+      const bins = {
+        "1-5": 0,
+        "6-10": 0,
+        "11-15": 0,
+        "16-20": 0,
+        "21-25": 0,
+        "26-30": 0,
+        "31-35": 0,
+        "36-40": 0,
+        "41-45": 0,
+        "46-50": 0,
+      };
+  
+      data.forEach((item) => {
+        const size = item.family_size;
+        if (size >= 1 && size <= 5) bins["1-5"]++;
+        else if (size >= 6 && size <= 10) bins["6-10"]++;
+        else if (size >= 11 && size <= 15) bins["11-15"]++;
+        else if (size >= 16 && size <= 20) bins["16-20"]++;
+        else if (size >= 21 && size <= 25) bins["21-25"]++;
+        else if (size >= 26 && size <= 30) bins["26-30"]++;
+        else if (size >= 31 && size <= 35) bins["31-35"]++;
+        else if (size >= 36 && size <= 40) bins["36-40"]++;
+        else if (size >= 41 && size <= 45) bins["41-45"]++;
+        else if (size >= 46 && size <= 50) bins["46-50"]++;
+      });
+  
+      return Object.keys(bins).map((range) => ({
+        range: range,
+        count: bins[range],
+      }));
+    };
+  
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const [ageRes, eduRes, relRes, famRes, finRes, visRes, educRes, topRes, relaRes, occupRes, sibRes, partnRes, pmonRes, monadqRes, gurdRes, acceRes, infRes] = await Promise.all([
+            axios.get("http://127.0.0.1:8000/api/age-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/education-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/religion-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/family-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/financial-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/visitor-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/educator-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/topic-distribution/"),
 
-const Analytics = () => {
+            //piechart
+            axios.get("http://127.0.0.1:8000/api/relationship-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/occupation-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/siblings-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/partners-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/pocketmoney-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/moneyadequate-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/guardianvisits-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/access-distribution/"),
+            axios.get("http://127.0.0.1:8000/api/info-distribution/"),
+          ]);
+  
+          setAgeDistribution(ageRes.data);
+          setEducationData(eduRes.data);
+          setReligionData(relRes.data);
+          setFinancialData(finRes.data);
+          setVisitorData(visRes.data);
+          setEducatorData(educRes.data);
+          setTopicData(topRes.data);
+
+          setRelationshipData(relaRes.data);
+          setOccupationData(occupRes.data);
+          setSiblingsData(sibRes.data);
+          setSiblingspartnerData(partnRes.data);
+          setPocketmoneyData(pmonRes.data);
+          setPocketadequateData(monadqRes.data);
+          setVisitData(gurdRes.data);
+          setAccessData(acceRes.data);
+          setInfoData(infRes.data);
+  
+          // Process and set grouped family size data
+          const groupedFamilyData = groupFamilySize(famRes.data);
+          setFamilyData(groupedFamilyData);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+  
+      fetchData();
+      const interval = setInterval(fetchData, 5000);
+      return () => clearInterval(interval);
+    }, []);
+    
+
   return (
     <div style={{ padding: "50px", marginLeft: "60px" }}>
       <Grid container spacing={3}>
@@ -139,19 +153,23 @@ const Analytics = () => {
 
         {/* Age Distribution */}
         <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <h2>Age Distribution</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={ageDistribution}>
-                  <XAxis dataKey="age" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#FF5733" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+        <Card className="p-4">
+      <CardContent>
+        <h2 className="text-lg font-semibold mb-4">Age Distribution</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={ageDistribution}>
+            <XAxis dataKey="age" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count">
+              {ageDistribution.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
         </Grid>
 
         {/* Relationship Distribution */}
@@ -160,16 +178,24 @@ const Analytics = () => {
             <CardContent>
               <h2>Relationship Distribution</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie data={relationshipData} dataKey="count" nameKey="type" cx="50%" cy="50%" outerRadius={100} label>
-                    {relationshipData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+          <PieChart>
+            <Pie 
+              data={relationshipData} 
+              dataKey="count" 
+              nameKey="relationship" 
+              cx="50%" 
+              cy="50%" 
+              outerRadius={100} 
+              label
+            >
+              {relationshipData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
@@ -180,52 +206,68 @@ const Analytics = () => {
             <CardContent>
               <h2>Guardian Occupation Distribution</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie data={guardianOccupation} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
-                    {guardianOccupation.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+          <PieChart>
+            <Pie 
+              data={occupationData} 
+              dataKey="count" 
+              nameKey="guardian_occupation" 
+              cx="50%" 
+              cy="50%" 
+              outerRadius={100} 
+              label
+            >
+              {occupationData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
 
         {/* Guardian Education Level */}
         <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <h2>Guardian Education Level</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={educationData}>
-                  <XAxis dataKey="level" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#FF5733" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+        <Card className="p-4">
+      <CardContent>
+        <h2 className="text-lg font-semibold mb-4">Guardian Education Level</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={educationData}>
+            <XAxis dataKey="guardian_education" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count">
+              {educationData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
         </Grid>
 
         {/* Guardian Education Level */}
         <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <h2>Religion</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={religionData}>
-                  <XAxis dataKey="level" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#FF5733" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+        <Card className="p-4">
+      <CardContent>
+        <h2 className="text-lg font-semibold mb-4">Religion</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={religionData}>
+            <XAxis dataKey="respondent_religion" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count">
+              {religionData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
         </Grid>
 
         <Grid item xs={12} md={6}>
@@ -233,13 +275,17 @@ const Analytics = () => {
             <CardContent>
               <h2>Family Size</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={familySizeData}>
-                  <XAxis dataKey="level" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#FF5733" />
-                </BarChart>
-              </ResponsiveContainer>
+          <BarChart data={familySizeData}>
+          <XAxis dataKey="range" tick={{ angle: -45, textAnchor: "end" }} />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count">
+              {familySizeData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
@@ -249,17 +295,24 @@ const Analytics = () => {
             <CardContent>
               <h2>Has Siblings</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                    <Pie data={siblingsData} dataKey="count" nameKey="option" cx="50%" cy="50%" outerRadius={100} label>
-                    {siblingsData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                </PieChart>
-                </ResponsiveContainer>
-
+          <PieChart>
+            <Pie 
+              data={siblingsData} 
+              dataKey="count" 
+              nameKey="has_siblings" 
+              cx="50%" 
+              cy="50%" 
+              outerRadius={100} 
+              label
+            >
+              {siblingsData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
@@ -269,16 +322,24 @@ const Analytics = () => {
             <CardContent>
               <h2>Siblings Have Partners</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                    <Pie data={siblingspartnerData} dataKey="count" nameKey="option" cx="50%" cy="50%" outerRadius={100} label>
-                    {siblingspartnerData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                </PieChart>
-                </ResponsiveContainer>
+          <PieChart>
+            <Pie 
+              data={siblingspartnerData} 
+              dataKey="count" 
+              nameKey="siblings_have_partners" 
+              cx="50%" 
+              cy="50%" 
+              outerRadius={100} 
+              label
+            >
+              {siblingspartnerData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
@@ -288,16 +349,24 @@ const Analytics = () => {
             <CardContent>
               <h2>Gets Pocket Money</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                    <Pie data={getspocketmoneyData} dataKey="count" nameKey="option" cx="50%" cy="50%" outerRadius={100} label>
-                    {getspocketmoneyData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                </PieChart>
-                </ResponsiveContainer>
+          <PieChart>
+            <Pie 
+              data={pocketmoneyData} 
+              dataKey="count" 
+              nameKey="gets_pocket_money" 
+              cx="50%" 
+              cy="50%" 
+              outerRadius={100} 
+              label
+            >
+              {pocketmoneyData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
@@ -307,16 +376,24 @@ const Analytics = () => {
             <CardContent>
               <h2>Pocket Money Adequate</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                    <Pie data={pocketmoneyadequateData} dataKey="count" nameKey="option" cx="50%" cy="50%" outerRadius={100} label>
-                    {pocketmoneyadequateData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                </PieChart>
-                </ResponsiveContainer>
+          <PieChart>
+            <Pie 
+              data={pocketmoneyadequateData} 
+              dataKey="count" 
+              nameKey="pocket_money_adequate" 
+              cx="50%" 
+              cy="50%" 
+              outerRadius={100} 
+              label
+            >
+              {pocketmoneyadequateData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
@@ -327,13 +404,17 @@ const Analytics = () => {
             <CardContent>
               <h2>Financial Support</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={financialsupportData }>
-                  <XAxis dataKey="level" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#FF5733" />
-                </BarChart>
-              </ResponsiveContainer>
+          <BarChart data={financialSupportData}>
+            <XAxis dataKey="financial_support" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count">
+              {financialSupportData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
@@ -343,16 +424,24 @@ const Analytics = () => {
             <CardContent>
               <h2>Guardian Visit </h2>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                    <Pie data={guardianvisitData } dataKey="count" nameKey="option" cx="50%" cy="50%" outerRadius={100} label>
-                    {guardianvisitData .map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                </PieChart>
-                </ResponsiveContainer>
+          <PieChart>
+            <Pie 
+              data={guardianvisitData} 
+              dataKey="count" 
+              nameKey="guardian_visits" 
+              cx="50%" 
+              cy="50%" 
+              outerRadius={100} 
+              label
+            >
+              {guardianvisitData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
@@ -362,13 +451,17 @@ const Analytics = () => {
             <CardContent>
               <h2>Alternative Visistor</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={alternativevisitorData}>
-                  <XAxis dataKey="level" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#FF5733" />
-                </BarChart>
-              </ResponsiveContainer>
+          <BarChart data={alternativeVisitorData}>
+            <XAxis dataKey="alternative_visitor" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count">
+              {alternativeVisitorData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
@@ -378,16 +471,24 @@ const Analytics = () => {
             <CardContent>
               <h2>Access To Reproductive Health Information</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                    <Pie data={ accessinfoData} dataKey="count" nameKey="option" cx="50%" cy="50%" outerRadius={100} label>
-                    { accessinfoData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                </PieChart>
-                </ResponsiveContainer>
+          <PieChart>
+            <Pie 
+              data={accessData} 
+              dataKey="count" 
+              nameKey="access_to_reproductive_health_info" 
+              cx="50%" 
+              cy="50%" 
+              outerRadius={100} 
+              label
+            >
+              {accessData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
@@ -397,16 +498,24 @@ const Analytics = () => {
             <CardContent>
               <h2>Information Adequate</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                    <Pie data={informationadequateData} dataKey="count" nameKey="option" cx="50%" cy="50%" outerRadius={100} label>
-                    {informationadequateData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                </PieChart>
-                </ResponsiveContainer>
+          <PieChart>
+            <Pie 
+              data={infoadequateData} 
+              dataKey="count" 
+              nameKey="information_adequate" 
+              cx="50%" 
+              cy="50%" 
+              outerRadius={100} 
+              label
+            >
+              {infoadequateData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
@@ -416,13 +525,17 @@ const Analytics = () => {
             <CardContent>
               <h2>Educator</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={educatorData}>
-                  <XAxis dataKey="level" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#FF5733" />
-                </BarChart>
-              </ResponsiveContainer>
+          <BarChart data={educatorData}>
+            <XAxis dataKey="educator_name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count">
+              {educatorData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
@@ -432,13 +545,17 @@ const Analytics = () => {
             <CardContent>
               <h2>Topic</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={topicData}>
-                  <XAxis dataKey="level" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#FF5733" />
-                </BarChart>
-              </ResponsiveContainer>
+          <BarChart data={topicData}>
+            <XAxis dataKey="topic_name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count">
+              {topicData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
