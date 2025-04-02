@@ -2,7 +2,7 @@
 import React, { 
   useState, 
 } from 'react';
-import { Formik, Form } from 'formik';
+import { useFormik, Formik, Form } from 'formik';
 import { 
   useNavigate, 
 } from 'react-router-dom';
@@ -60,6 +60,22 @@ const Index = () => {
     topic_name: [],
   });
 
+  const handleCheckboxChange = (event, fieldName) => {
+    const { value, checked } = event.target;
+
+    setFormData((prevData) => {
+        const updatedArray = checked
+            ? [...prevData[fieldName], value]  // Add value if checked
+            : prevData[fieldName].filter((item) => item !== value); // Remove if unchecked
+
+        return {
+            ...prevData,
+            [fieldName]: updatedArray,  // Update the correct field dynamically
+        };
+    });
+};
+
+
   // Handle input change for form fields
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -79,6 +95,17 @@ const Index = () => {
     
     return errors;
   };
+
+
+  const formik = useFormik({
+    initialValues: {
+        educator_name: [], // Ensure this is an array
+    },
+    onSubmit: (values) => {
+        console.log("Form submitted:", values);
+    },
+});
+
 
   // ✅ Properly structured `handleSubmit` function
   const handleSubmit = async () => {
@@ -398,38 +425,38 @@ const Index = () => {
                           
                           <Grid container spacing={2} sx={{ flexWrap: { xs: "wrap", md: "nowrap" } }}>
                           <Grid item xs={12} md={6}>
-                              <Box sx={{ marginTop: 2 }}>
-                                  Who educates you about reproductive health?
-                              </Box> 
-                              <FormGroup sx={{
-                                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)', 
-                                  borderRadius: '8px', 
-                                  border: '1px solid #ccc', 
-                                  padding: '16px', 
-                                  marginBottom: 2
-                              }}>
-                                  {['Teacher', 'Parents', 'Health worker', 'Friends', 'Radio/Magazines/TV'].map((educator) => (
-                                      <FormControlLabel
-                                          key={educator}
-                                          control={
-                                              <Checkbox
-                                                  checked={values.educator_name.includes(educator)}
-                                                  onChange={(e) => {
-                                                      setFieldValue(
-                                                          "educator_name", 
-                                                          e.target.checked 
-                                                              ? [...values.educator_name, educator] 
-                                                              : values.educator_name.filter(item => item !== educator)
-                                                      );
-                                                  }}
-                                                  value={educator}
-                                              />
-                                          }
-                                          label={educator}
-                                      />
-                                  ))}
-                              </FormGroup>
-                          </Grid>
+    <Box sx={{ marginTop: 2 }}>
+        Who educates you about reproductive health?
+    </Box> 
+    <FormGroup sx={{
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)', 
+        borderRadius: '8px', 
+        border: '1px solid #ccc', 
+        padding: '16px', 
+        marginBottom: 2
+    }}>
+        {['Teacher', 'Parents', 'Health worker', 'Friends', 'Radio/Magazines/TV'].map((educator) => (
+            <FormControlLabel
+                key={educator}
+                control={
+                    <Checkbox
+                        checked={formik.values.educator_name.includes(educator)}
+                        onChange={(e) => {
+                            const updatedEducators = e.target.checked
+                                ? [...formik.values.educator_name, educator]  // Add checked item
+                                : formik.values.educator_name.filter(item => item !== educator); // Remove unchecked item
+                                
+                            formik.setFieldValue("educator_name", updatedEducators);
+                        }}
+                        value={educator}
+                    />
+                }
+                label={educator}
+            />
+        ))}
+    </FormGroup>
+</Grid>
+
                      
                       
                                 <Grid item xs={12} md={6}>
